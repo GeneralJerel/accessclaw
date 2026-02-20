@@ -1,52 +1,58 @@
-.dashboard-container {
-    display: flex;
-    height: calc(100vh - 70px);
-    padding: var(--space-6);
-    gap: var(--space-6);
+/* Dashboard Light Theme Overrides */
+
+.dashboard-split {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 1rem;
+    align-items: start;
 }
 
-/* --- Left Panel: Chat Interface --- */
+/* Chat Interface overrides */
 .chat-interface {
-    width: 400px;
     display: flex;
     flex-direction: column;
-    border-radius: var(--radius-lg);
+    height: calc(100vh - 120px);
+    padding: 0;
+    /* Let .page handle border, just adjust inside */
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .chat-header {
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-bottom: 1px solid var(--line);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--surface-soft);
 }
 
 .agent-identity {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0.5rem;
 }
 
 .agent-avatar {
     width: 36px;
     height: 36px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .agent-name {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.95rem;
+    color: var(--text);
 }
 
 .agent-status {
     font-size: 0.75rem;
-    color: var(--text-secondary);
+    color: var(--muted);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -56,36 +62,36 @@
     width: 6px;
     height: 6px;
     background-color: var(--success);
-    border-radius: var(--radius-full);
+    border-radius: 50%;
 }
 
 .btn-icon {
     background: transparent;
     border: none;
-    color: var(--text-secondary);
+    color: var(--muted);
     cursor: pointer;
     padding: 4px;
-    border-radius: var(--radius-sm);
-    transition: color 0.2s, background 0.2s;
+    border-radius: 50%;
+    transition: all 0.2s;
 }
 
 .btn-icon:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    background: var(--line);
 }
 
 .chat-messages {
     flex: 1;
-    padding: var(--space-4);
+    padding: 1rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 1rem;
 }
 
 .message-wrapper {
     display: flex;
-    gap: var(--space-3);
+    gap: 0.5rem;
     max-width: 90%;
 }
 
@@ -97,7 +103,7 @@
 .message-avatar {
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-full);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -105,38 +111,410 @@
 }
 
 .system .message-avatar {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--accent-primary);
+    background: var(--surface-soft);
+    color: var(--accent);
+    border: 1px solid var(--line);
 }
 
 .user .message-avatar {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
+    background: var(--surface-soft);
+    color: var(--muted);
+    border: 1px solid var(--line);
 }
 
 .message-bubble {
-    padding: var(--space-3);
+    padding: 0.75rem 1rem;
     border-radius: var(--radius-md);
     font-size: 0.9rem;
     line-height: 1.5;
+    color: var(--text);
 }
 
 .system .message-bubble {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-top-left-radius: 2px;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-top-left-radius: 4px;
 }
 
 .user .message-bubble {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-top-right-radius: 2px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-top-right-radius: 4px;
 }
 
+.chat-input-area {
+    padding: 1rem;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.chat-form {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.25rem;
+    transition: border-color 0.2s;
+}
+
+.chat-form:focus-within {
+    border-color: var(--accent);
+}
+
+.chat-form input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.chat-form input::placeholder {
+    color: var(--muted);
+}
+
+.send-btn {
+    background: transparent;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.send-btn.active {
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+}
+
+.chat-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+
+/* Empty State Override */
+.empty-state {
+    text-align: center;
+    max-width: 300px;
+    margin: auto;
+    padding: 3rem 0;
+}
+
+.empty-icon {
+    margin-bottom: 1rem;
+    color: var(--line);
+}
+
+/* Email List Override */
+.email-list {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.emails {
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+.email-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.email-item:hover {
+    background: var(--bg);
+}
+
+.email-item.selected {
+    background: var(--surface-soft);
+    border-left: 3px solid var(--accent);
+}
+
+.email-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.sender {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.time {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.subject {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.snippet {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+}
+
+.tag {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--line);
+    color: var(--text);
+}
+
+.tag.high {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+    /* Dark orange */
+}
+
+/* Email Detail Override */
+.email-detail {
+    padding: 0;
+}
+
+.detail-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.detail-subject {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.detail-meta {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.thread-body {
+    padding: 1.5rem;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.ai-copilot-panel {
+    margin: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.copilot-header {
+    background: var(--surface);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+}
+
+.copilot-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent);
+    border-radius: 50%;
+}
+
+.workflow-badge {
+    font-size: 0.75rem;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+}
+
+.draft-editor {
+    padding: 1rem;
+}
+
+.draft-textarea {
+    width: 100%;
+    height: 120px;
+    background: transparent;
+    border: none;
+    resize: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    outline: none;
+}
+
+.copilot-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+}
+
+/* Schedule */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.schedule-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    align-items: center;
+}
+
+.schedule-item.block {
+    border-left: 3px solid var(--muted);
+}
+
+.schedule-item.meeting {
+    border-left: 3px solid var(--accent);
+    background: var(--bg);
+}
+
+.schedule-item.proposed {
+    border-left: 3px solid var(--warning);
+    background: #fffcf0;
+    border-style: dashed;
+}
+
+.schedule-item .time {
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--muted);
+    width: 140px;
+    flex-shrink: 0;
+}
+
+/* CRM */
+.crm-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.crm-card {
+    padding: 1rem;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+}
+
+.crm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.25rem;
+}
+
+.health-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.health-dot.good {
+    background-color: var(--success);
+}
+
+.health-dot.warning {
+    background-color: var(--warning);
+}
+
+.health-dot.danger {
+    background-color: #ef4444;
+}
+
+/* Invoices */
+.invoice-view {
+    padding: 0;
+}
+
+.invoice-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+}
+
+.invoice-document {
+    padding: 2rem;
+    margin: 1.5rem;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+}
+
+.invoice-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+}
+
+.invoice-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* Typing indicator */
 .typing-indicator {
     display: flex;
     gap: 4px;
-    padding: var(--space-2) var(--space-3) !important;
+    padding: 0.5rem 1rem !important;
     align-items: center;
     height: 36px;
 }
@@ -144,7 +522,7 @@
 .typing-indicator span {
     width: 6px;
     height: 6px;
-    background-color: var(--text-secondary);
+    background-color: var(--muted);
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out both;
 }
@@ -170,620 +548,9 @@
     }
 }
 
-.chat-input-area {
-    padding: var(--space-4);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.chat-form {
-    display: flex;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
-    padding: var(--space-2);
-    transition: border-color 0.2s;
-}
-
-.chat-form:focus-within {
-    border-color: var(--accent-primary);
-}
-
-.chat-form input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: var(--space-2) var(--space-3);
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    outline: none;
-}
-
-.chat-form input::placeholder {
-    color: var(--text-tertiary);
-}
-
-.send-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    color: var(--text-tertiary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.send-btn.active {
-    background: var(--accent-primary);
-    color: #fff;
-    cursor: pointer;
-}
-
-.chat-hint {
-    text-align: center;
-    font-size: 0.7rem;
-    color: var(--text-tertiary);
-    margin-top: var(--space-2);
-}
-
-/* --- Right Panel: Dynamic Workspace --- */
-.dashboard-content {
-    flex: 1;
-    display: flex;
-    gap: var(--space-6);
-    height: 100%;
-}
-
-.empty-workspace {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-lg);
-    border: 1px dashed rgba(255, 255, 255, 0.1);
-}
-
-.empty-state {
-    text-align: center;
-    max-width: 300px;
-}
-
-.empty-icon {
-    margin-bottom: var(--space-4);
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0px);
+@media (max-width: 860px) {
+    .dashboard-split {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
-
-    50% {
-        transform: translateY(-10px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
-}
-
-.empty-state h3 {
-    font-size: 1.25rem;
-    margin-bottom: var(--space-2);
-}
-
-/* Rest of the email list/detail styles from previous dashboard */
-.email-list {
-    display: none;
-    /* Hide by default until activated */
-    width: 380px;
-    flex-direction: column;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.email-list.active-view {
-    display: flex;
-}
-
-.list-header {
-    padding: var(--space-4) var(--space-4) 0;
-}
-
-.filter-tabs {
-    display: flex;
-    gap: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: var(--space-3);
-    padding-bottom: 0;
-}
-
-.filter-tabs .tab {
-    padding-bottom: var(--space-2);
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-}
-
-.filter-tabs .tab.active {
-    color: var(--text-primary);
-    border-bottom-color: var(--accent-primary);
-}
-
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    background: rgba(0, 0, 0, 0.2);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.search-bar input {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    outline: none;
-    width: 100%;
-    font-size: 0.9rem;
-}
-
-.emails {
-    flex: 1;
-    overflow-y: auto;
-}
-
-.email-item {
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.email-item:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.email-item.selected {
-    background: rgba(99, 102, 241, 0.08);
-    border-left: 2px solid var(--accent-primary);
-}
-
-.email-item-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: var(--space-1);
-}
-
-.sender {
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.time {
-    font-size: 0.8rem;
-    color: var(--text-tertiary);
-}
-
-.subject {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-1);
-}
-
-.snippet {
-    font-size: 0.85rem;
-    color: var(--text-tertiary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: var(--space-2);
-}
-
-.tag {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.tag.high {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--warning);
-}
-
-.tag.medium {
-    background: rgba(59, 130, 246, 0.15);
-    color: var(--accent-tertiary);
-}
-
-.tag.low {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
-}
-
-
-/* Detail View */
-.email-detail {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.detail-header {
-    padding: var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.detail-subject {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: var(--space-2);
-}
-
-.detail-meta {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.thread-body {
-    padding: var(--space-6);
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-/* Copilot Panel */
-.ai-copilot-panel {
-    margin: 0 var(--space-6) var(--space-6);
-    border: 1px solid var(--accent-primary);
-    border-radius: var(--radius-md);
-    background: rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-}
-
-.copilot-header {
-    background: rgba(99, 102, 241, 0.1);
-    padding: var(--space-3) var(--space-4);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-.copilot-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: 500;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-}
-
-.workflow-badge {
-    font-size: 0.75rem;
-    background: var(--accent-primary);
-    color: white;
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-}
-
-.draft-editor {
-    padding: var(--space-4);
-}
-
-.draft-textarea {
-    width: 100%;
-    height: 120px;
-    background: transparent;
-    border: none;
-    resize: none;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    outline: none;
-}
-
-.copilot-actions {
-    padding: var(--space-3) var(--space-4);
-    border-top: 1px dashed rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.context-note {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.action-buttons {
-    display: flex;
-    gap: var(--space-3);
-}
-
-.action-buttons .btn {
-    padding: var(--space-2) var(--space-4);
-    font-size: 0.85rem;
-}/* Add these to the end of your existing Dashboard.css file */
-
-/* Workspace Header */
-.workspace-header {
-    padding: var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.workspace-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-2);
-}
-
-.inline-icon {
-    width: 28px;
-    height: 28px;
-}
-
-/* Schedule View */
-.schedule-list {
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-.schedule-item {
-    display: flex;
-    gap: var(--space-6);
-    padding: var(--space-4);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-md);
-    align-items: center;
-}
-
-.schedule-item.block {
-    border-left: 3px solid var(--text-tertiary);
-    opacity: 0.7;
-}
-
-.schedule-item.meeting {
-    border-left: 3px solid var(--accent-primary);
-    background: rgba(99, 102, 241, 0.05);
-}
-
-.schedule-item.proposed {
-    border-left: 3px solid var(--warning);
-    background: rgba(245, 158, 11, 0.05);
-    border-style: dashed;
-}
-
-.schedule-item .time {
-    font-family: monospace;
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    width: 140px;
-    flex-shrink: 0;
-}
-
-.schedule-item .details h4 {
-    font-weight: 500;
-    font-size: 1.05rem;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin: 0;
-}
-
-/* CRM View */
-.crm-list {
-    padding: var(--space-6);
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-4);
-}
-
-.crm-card {
-    padding: var(--space-4);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-md);
-    transition: transform 0.2s, background 0.2s;
-    cursor: pointer;
-}
-
-.crm-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-2px);
-}
-
-.crm-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--space-1);
-}
-
-.crm-card-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.health-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.health-dot.good {
-    background-color: var(--success);
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-}
-
-.health-dot.warning {
-    background-color: var(--warning);
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-}
-
-.health-dot.danger {
-    background-color: var(--danger);
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
-}
-
-.crm-meta {
-    font-size: 0.85rem;
-    color: var(--text-tertiary);
-    margin-bottom: var(--space-4);
-}
-
-.crm-status {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.crm-contact {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.8rem;
-    color: var(--text-tertiary);
-}/* Add these to the end of Dashboard.css */
-
-/* Invoice View */
-.invoice-view {
-    display: flex;
-    flex-direction: column;
-}
-
-.invoice-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.invoice-actions {
-    display: flex;
-    gap: var(--space-3);
-}
-
-.invoice-actions .btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    font-size: 0.9rem;
-}
-
-.invoice-document {
-    padding: var(--space-8);
-    margin: var(--space-6);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-md);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.invoice-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: var(--space-8);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.meta-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-tertiary);
-    margin-bottom: var(--space-1);
-}
-
-.client-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.client-contact {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.invoice-dates {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-.date-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.invoice-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.invoice-table th {
-    text-align: left;
-    padding: var(--space-3) var(--space-4);
-    background: rgba(0, 0, 0, 0.2);
-    color: var(--text-secondary);
-    font-weight: 500;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.invoice-table td {
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    color: var(--text-primary);
-}
-
-.invoice-table tfoot td {
-    padding: var(--space-6) var(--space-4);
-    border-bottom: none;
-}
-
-.text-right {
-    text-align: right !important;
-}
-
-.text-xl {
-    font-size: 1.25rem;
-}
-
-.font-bold {
-    font-weight: 700;
-}
-
-.font-semibold {
-    font-weight: 600;
 }

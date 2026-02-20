@@ -35,20 +35,20 @@ const features = [
 
 function Features() {
     return (
-        <section className="features-section container">
-            <div className="features-header text-center">
-                <h2>Everything you need, <span className="text-gradient">handled.</span></h2>
-                <p className="text-secondary">Stop context-switching. Let your AI Chief of Staff handle the busywork.</p>
+        <section className="container" style={{ margin: '4rem auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <h2>Everything you need, <span style={{ color: 'var(--accent)' }}>handled.</span></h2>
+                <p className="subtitle" style={{ margin: '0 auto' }}>Stop context-switching. Let your AI Chief of Staff handle the busywork.</p>
             </div>
 
-            <div className="features-grid">
+            <div className="feature-grid">
                 {features.map((feature) => (
-                    <div key={feature.id} className="feature-card glass-panel group">
-                        <div className="feature-icon" style={{ backgroundColor: `${feature.color}20`, color: feature.color }}>
+                    <div key={feature.id} className="card stack">
+                        <div style={{ color: 'var(--accent)', marginBottom: '0.5rem' }}>
                             {feature.icon}
                         </div>
                         <h3>{feature.title}</h3>
-                        <p className="text-secondary">{feature.description}</p>
+                        <p>{feature.description}</p>
                     </div>
                 ))}
             </div>

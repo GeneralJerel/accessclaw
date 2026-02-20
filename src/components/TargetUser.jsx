@@ -4,36 +4,36 @@ import { UserCheck, Check, X } from 'lucide-react';
 
 function TargetUser() {
     return (
-        <section className="target-user-section container">
-            <div className="target-card glass-panel">
-                <div className="target-header">
-                    <div className="icon-wrapper">
-                        <UserCheck size={32} color="var(--accent-secondary)" />
+        <section className="container" style={{ margin: '4rem auto' }}>
+            <div className="page stack">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ color: 'var(--accent)', background: 'var(--surface-soft)', padding: '0.75rem', borderRadius: '50%' }}>
+                        <UserCheck size={32} />
                     </div>
                     <div>
-                        <h2>Who is this for?</h2>
-                        <p className="text-secondary">Independent consultants, designers, developers, and coaches running a one-person business.</p>
+                        <h2 style={{ marginBottom: 0 }}>Who is this for?</h2>
+                        <p className="subtitle">Independent consultants, designers, developers, and coaches running a one-person business.</p>
                     </div>
                 </div>
 
-                <div className="target-details">
-                    <div className="detail-column">
-                        <h3 className="success-text">Core Needs</h3>
-                        <ul className="check-list">
-                            <li><Check size={16} /> Fewer admin hours</li>
-                            <li><Check size={16} /> No missed follow-ups</li>
-                            <li><Check size={16} /> Faster payments</li>
-                            <li><Check size={16} /> Feeling in control without overwhelm</li>
+                <div className="split">
+                    <div className="card stack" style={{ padding: '1.5rem' }}>
+                        <h3 style={{ color: 'var(--success)' }}>Core Needs</h3>
+                        <ul className="trust-list" style={{ marginTop: '0.5rem' }}>
+                            <li className="active" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Check size={16} /> Fewer admin hours</li>
+                            <li className="active" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Check size={16} /> No missed follow-ups</li>
+                            <li className="active" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Check size={16} /> Faster payments</li>
+                            <li className="active" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Check size={16} /> Feeling in control without overwhelm</li>
                         </ul>
                     </div>
 
-                    <div className="detail-column">
-                        <h3 className="danger-text">Non-goals</h3>
-                        <ul className="cross-list">
-                            <li><X size={16} /> Another tool to babysit</li>
-                            <li><X size={16} /> Hidden black-box automation</li>
-                            <li><X size={16} /> Complex, lengthy setup</li>
-                            <li><X size={16} /> Losing your personal voice</li>
+                    <div className="card stack" style={{ padding: '1.5rem' }}>
+                        <h3 style={{ color: '#ef4444' }}>Non-goals</h3>
+                        <ul className="trust-list" style={{ marginTop: '0.5rem' }}>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><X size={16} /> Another tool to babysit</li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><X size={16} /> Hidden black-box automation</li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><X size={16} /> Complex, lengthy setup</li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><X size={16} /> Losing your personal voice</li>
                         </ul>
                     </div>
                 </div>

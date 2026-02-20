@@ -6,18 +6,14 @@ import Dashboard from './pages/Dashboard'
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <div className="bg-blob-1"></div>
-        <div className="bg-blob-2"></div>
-
-        {/* Simple global nav for demo purposes */}
-        <nav style={{ padding: 'var(--space-4) var(--space-6)', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={{ fontWeight: 700 }}>AI Chief of Staff</div>
-          <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-            <Link to="/" style={{ color: 'var(--text-secondary)' }}>Home</Link>
-            <Link to="/dashboard" style={{ color: 'var(--accent-primary)', fontWeight: 500 }}>Dashboard</Link>
-          </div>
-        </nav>
+      <div className="container">
+        <header className="site-header">
+          <Link to="/" className="logo">AI Chief of Staff</Link>
+          <nav className="tabs">
+            <Link to="/" className={window.location.pathname === '/' ? 'active' : ''}>Home</Link>
+            <Link to="/dashboard" className={window.location.pathname === '/dashboard' ? 'active' : ''}>Dashboard</Link>
+          </nav>
+        </header>
 
         <Routes>
           <Route path="/" element={<Home />} />

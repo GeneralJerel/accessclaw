@@ -119,10 +119,10 @@ function Dashboard() {
     };
 
     return (
-        <div className="dashboard-container">
+        <div className="dashboard-split">
 
             {/* Primary Interaction: AI Chat Interface (Left Panel) */}
-            <aside className="chat-interface glass-panel">
+            <aside className="chat-interface page">
                 <div className="chat-header">
                     <div className="agent-identity">
                         <div className="agent-avatar"><Sparkles size={18} color="white" /></div>
@@ -177,7 +177,7 @@ function Dashboard() {
             <main className="dashboard-content">
 
                 {/* VIEW 1: INBOX */}
-                <section className={`email-list glass-panel ${['inbox', 'drafting'].includes(activeWorkspace) ? 'active-view' : ''}`}>
+                <section className={`email-list page ${['inbox', 'drafting'].includes(activeWorkspace) ? 'active-view' : ''}`}>
                     <div className="list-header">
                         <h3>Triage Inbox</h3>
                         <div className="filter-tabs">
@@ -212,7 +212,7 @@ function Dashboard() {
 
                 {/* VIEW 2: DRAFTING */}
                 {activeWorkspace === 'drafting' && (
-                    <section className="email-detail glass-panel animate-fade-in">
+                    <section className="email-detail page animate-fade-in">
                         <div className="detail-header">
                             <div className="detail-subject">{selectedEmail.subject}</div>
                             <div className="detail-meta">From: <span className="text-primary">{selectedEmail.sender}</span> • {selectedEmail.time}</div>
@@ -245,7 +245,7 @@ function Dashboard() {
                                     <span>Context applied from chat history.</span>
                                 </div>
                                 <div className="action-buttons">
-                                    <button className="btn btn-secondary">Edit Draft</button>
+                                    <button className="btn btn-outline">Edit Draft</button>
                                     <button className="btn btn-primary" onClick={() => {
                                         setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: 'Email successfully sent and thread archived.' }]);
                                         setActiveWorkspace('inbox');
@@ -258,7 +258,7 @@ function Dashboard() {
 
                 {/* VIEW 3: SCHEDULE */}
                 {activeWorkspace === 'schedule' && (
-                    <section className="workspace-view glass-panel animate-fade-in">
+                    <section className="workspace-view page animate-fade-in">
                         <div className="workspace-header">
                             <h2><Calendar size={24} className="text-primary inline-icon" /> Smart Schedule</h2>
                             <p className="text-secondary">AI protected deep work and proposed meetings.</p>
@@ -279,7 +279,7 @@ function Dashboard() {
 
                 {/* VIEW 4: CRM / CLIENT FOLLOW UP */}
                 {activeWorkspace === 'crm' && (
-                    <section className="workspace-view glass-panel animate-fade-in">
+                    <section className="workspace-view page animate-fade-in">
                         <div className="workspace-header">
                             <h2><Users size={24} className="text-primary inline-icon" /> Client Pipeline</h2>
                             <p className="text-secondary">Proactive tracking of relationships and active projects.</p>
@@ -306,14 +306,14 @@ function Dashboard() {
 
                 {/* VIEW 5: INVOICE GENERATION */}
                 {activeWorkspace === 'invoice_gen' && (
-                    <section className="workspace-view glass-panel animate-fade-in invoice-view">
+                    <section className="workspace-view page animate-fade-in invoice-view">
                         <div className="workspace-header invoice-header">
                             <div>
                                 <h2><FileText size={24} className="text-primary inline-icon" /> Invoice Draft</h2>
                                 <p className="text-secondary">Auto-generated based on tracked time for {mockInvoiceDetails.project}</p>
                             </div>
                             <div className="invoice-actions">
-                                <button className="btn btn-secondary"><Download size={16} /> Download PDF</button>
+                                <button className="btn btn-outline"><Download size={16} /> Download PDF</button>
                                 <button className="btn btn-primary" onClick={() => {
                                     setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: `Invoice successfully sent to ${mockInvoiceDetails.contact} at ${mockInvoiceDetails.client}.` }]);
                                     setActiveWorkspace('inbox');
@@ -374,7 +374,7 @@ function Dashboard() {
 
                 {/* EMPTY STATE */}
                 {activeWorkspace === 'empty' && (
-                    <section className="empty-workspace glass-panel">
+                    <section className="empty-workspace page">
                         <div className="empty-state">
                             <div className="empty-icon"><Sparkles size={48} color="rgba(255,255,255,0.1)" /></div>
                             <h3>Workspace Ready</h3>
