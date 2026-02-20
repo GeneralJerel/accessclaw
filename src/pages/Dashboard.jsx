@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Dashboard.css';
 import { Mail, Calendar, FileText, Settings, Search, CheckCircle2, Circle, AlertCircle, RefreshCw, Send, User, Bot, Sparkles, Clock, Users, DollarSign, Download, ListTodo, ArrowUpRight, ArrowDownLeft, ArrowUpRight as ArrowOut, ChevronDown, ChevronRight, Zap, MessageSquare, PenLine } from 'lucide-react';
 
+import { useLocation } from 'react-router-dom';
 import db, { sendEmail, freelancer, getThread } from '../../mock-data/index';
+import { scenarioOnlyEmails } from '../../mock-data/seed';
 import eventBus from '../../mock-data/eventBus';
 
 const calendarEvents = db.collection('calendar').getAll();
@@ -178,6 +180,9 @@ const mockInvoiceDetails = {
 };
 
 function Dashboard() {
+    const location = useLocation();
+    const isDemoMode = new URLSearchParams(location.search).get('chiefclaw') === 'true';
+
     const [inboxEmails, setInboxEmails] = useState(() => db.collection('inbox').getAll());
     const mockEmails = useMemo(() => mapEmailsForDisplay(inboxEmails), [inboxEmails]);
 
@@ -223,9 +228,21 @@ function Dashboard() {
         return unsub;
     }, []);
 
-    // Event bus — scenario drives the chat and UI
+    // Event bus — scenario drives the chat and UI (cross-tab via BroadcastChannel)
     useEffect(() => {
         const unsubs = [
+            eventBus.on('inbox:add', ({ email }) => {
+                db.collection('inbox').add({ ...email });
+            }),
+            eventBus.on('scenario:reset', () => {
+                scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
+                setMessages([
+                    { id: 1, role: 'system', text: 'Hi! I am your AI Chief of Staff. How can I help you manage your business today?' },
+                    { id: 2, role: 'system', text: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
+                ]);
+                setActiveWorkspace('empty');
+                setSelectedEmail(null);
+            }),
             eventBus.on('chat:message', ({ text, role }) => {
                 setMessages(prev => [...prev, { id: Date.now(), role, text }]);
             }),
@@ -343,8 +360,8 @@ function Dashboard() {
         }, 1500);
     };
 
-    // Connection State
-    const [isConnected, setIsConnected] = useState(false);
+    // Connection State — auto-connect in demo mode
+    const [isConnected, setIsConnected] = useState(isDemoMode);
     const [password, setPassword] = useState('');
 
     const handleConnect = (e) => {

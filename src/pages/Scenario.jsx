@@ -17,6 +17,8 @@ const clients = db.collection('clients').getAll();
 const dailyBrief = db.collection('dailyBriefs').getAll()[0];
 const tasks = db.collection('tasks').getAll();
 
+const DASHBOARD_URL = '/dashboard?chiefclaw=true';
+
 const SCENARIO_CHAT_MESSAGES = [
   'New email received from David Park — rebrand inquiry for Riviera Hospitality Group. Triaging now...',
   "I've drafted a response with 3 calendar slots and sent it to David on your behalf.",
@@ -233,6 +235,15 @@ function Scenario() {
   const [activityLog, setActivityLog] = useState([]);
   const feedEndRef = useRef(null);
   const timeoutsRef = useRef([]);
+  const dashboardTabRef = useRef(null);
+
+  const ensureDashboardTab = () => {
+    if (!dashboardTabRef.current || dashboardTabRef.current.closed) {
+      dashboardTabRef.current = window.open(DASHBOARD_URL, 'openclaw-dashboard');
+    } else {
+      dashboardTabRef.current.focus();
+    }
+  };
 
   const david = clients.find(c => c.id === 'cli_01');
 
@@ -246,6 +257,10 @@ function Scenario() {
   };
 
   const dispatchToDashboard = (stepIdx, email) => {
+    if (email) {
+      eventBus.emit('inbox:add', { email: { ...email } });
+    }
+
     eventBus.emit('chat:typing', { isTyping: true });
 
     const t1 = setTimeout(() => {
@@ -286,7 +301,6 @@ function Scenario() {
     if (step.emailId) {
       const email = scenarioOnlyEmails.find(e => e.id === step.emailId);
       if (email) {
-        db.collection('inbox').add({ ...email });
         setFeedItems(prev => [...prev, { type: 'email', data: email, key: step.emailId }]);
         dispatchToDashboard(stepIdx, email);
       }
@@ -318,9 +332,10 @@ function Scenario() {
       setFeedItems([]);
       setActivityLog([]);
       setCurrentStep(-1);
-      scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
+      eventBus.emit('scenario:reset', {});
     }
 
+    ensureDashboardTab();
     setIsRunning(true);
     simulateNextStep(currentStep + 1);
   };
@@ -331,7 +346,8 @@ function Scenario() {
     setActivityLog([]);
     setCurrentStep(-1);
     setIsRunning(true);
-    scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
+    eventBus.emit('scenario:reset', {});
+    ensureDashboardTab();
 
     let cumDelay = 0;
     SCENARIO_SEQUENCE.forEach((step, idx) => {
@@ -352,7 +368,7 @@ function Scenario() {
     setActivityLog([]);
     setCurrentStep(-1);
     setIsRunning(false);
-    scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
+    eventBus.emit('scenario:reset', {});
   };
 
   const nextStepLabel = currentStep < 0

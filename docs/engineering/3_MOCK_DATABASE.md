@@ -134,31 +134,40 @@ The email is immediately added to `db.collection('inbox')` and any subscribers a
 
 ---
 
-## Event Bus — Cross-Page Communication
+## Event Bus — Cross-Tab Communication
 
-The event bus (`mock-data/eventBus.js`) is a lightweight pub/sub singleton that allows the Scenario page to drive the Dashboard UI in real time.
+The event bus (`mock-data/eventBus.js`) uses the browser `BroadcastChannel` API to deliver events across tabs. The Scenario page (tab 1) emits events, and the Dashboard (tab 2) receives them. The same `on`/`emit` API also works within a single tab.
+
+**How it works:**
+- `emit(event, payload)` fires local listeners AND posts to `BroadcastChannel('openclaw_scenario')`
+- Messages arriving from other tabs fire local listeners in the receiving tab
+- Falls back to local-only if `BroadcastChannel` is unavailable
 
 ```js
 import eventBus from '../../mock-data/eventBus';
 
-// Emit from Scenario
+// Emit from Scenario (crosses to Dashboard tab)
+eventBus.emit('inbox:add', { email: { ...emailDoc } });
 eventBus.emit('chat:message', { text: 'New email from David Park...', role: 'system' });
 eventBus.emit('ui:switchView', { workspace: 'inbox' });
-eventBus.emit('ui:selectEmail', { emailId: 'email_01' });
 
 // Subscribe from Dashboard
-const unsub = eventBus.on('chat:message', ({ text, role }) => {
-  setMessages(prev => [...prev, { id: Date.now(), role, text }]);
+const unsub = eventBus.on('inbox:add', ({ email }) => {
+  db.collection('inbox').add({ ...email });
 });
 unsub(); // cleanup
 ```
 
 | Event | Payload | Dashboard Reaction |
 |-------|---------|-------------------|
+| `inbox:add` | `{ email }` | Adds email to local DB (triggers subscribe) |
+| `scenario:reset` | `{}` | Removes scenario emails, resets chat and view |
 | `chat:message` | `{ text, role }` | Appends message to AI chat panel |
 | `chat:typing` | `{ isTyping }` | Shows/hides typing indicator |
 | `ui:switchView` | `{ workspace }` | Switches active workspace view |
 | `ui:selectEmail` | `{ emailId }` | Selects and highlights the email |
+
+**Demo mode:** The Scenario page opens `/dashboard?demo=true` in a new tab, which bypasses the password gate.
 
 ---
 
