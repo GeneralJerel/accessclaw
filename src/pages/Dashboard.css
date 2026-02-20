@@ -147,6 +147,25 @@
     color: var(--muted);
 }
 
+.notification .message-sender-label {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.notification .message-avatar {
+    background: var(--surface-soft);
+    color: var(--muted);
+    border: 1px solid var(--line);
+}
+
+.notification .message-bubble {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-top-left-radius: 4px;
+    font-style: italic;
+    color: var(--muted);
+}
+
 .system .message-bubble {
     background: var(--surface-soft);
     border: 1px solid var(--line);

@@ -426,11 +426,11 @@ function Dashboard() {
                     {messages.map(msg => (
                         <div key={msg.id} className={`message-wrapper ${msg.role}`}>
                             <div className="message-avatar">
-                                {msg.role === 'system' ? <Bot size={16} /> : <User size={16} />}
+                                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                             </div>
                             <div className="message-bubble">
                                 <div className="message-sender-label">
-                                    {msg.role === 'system' ? 'ChiefClaw 🦞' : 'You'}
+                                    {msg.role === 'system' ? 'ChiefClaw 🦞' : msg.role === 'notification' ? '[System]' : 'You'}
                                 </div>
                                 {msg.text}
                             </div>
@@ -630,7 +630,7 @@ function Dashboard() {
                                                             generatedBy: 'openclaw',
                                                             approvedBy: freelancer.name,
                                                         });
-                                                        setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: `Email sent to ${selectedEmail.sender} and thread archived.` }]);
+                                                        setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Email sent to ${selectedEmail.sender} and thread archived.` }]);
                                                         setActiveWorkspace('inbox');
                                                     }}><CheckCircle2 size={16} /> Approve & Send</button>
                                                 </div>
@@ -781,7 +781,7 @@ function Dashboard() {
                                 <div className="invoice-actions">
                                     <button className="btn btn-outline"><Download size={16} /> PDF</button>
                                     <button className="btn btn-primary" onClick={() => {
-                                        setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: `Invoice successfully sent to ${mockInvoiceDetails.contact} at ${mockInvoiceDetails.client}.` }]);
+                                        setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Invoice successfully sent to ${mockInvoiceDetails.contact} at ${mockInvoiceDetails.client}.` }]);
                                         setActiveWorkspace('empty');
                                     }}><Send size={16} /> Approve & Send</button>
                                 </div>
