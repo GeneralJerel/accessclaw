@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tgz
+
+# App
+app/node_modules/
+app/dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*

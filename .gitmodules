@@ -1,0 +1,3 @@
+[submodule "references/clawg-ui"]
+	path = references/clawg-ui
+	url = https://github.com/contextablemark/clawg-ui.git
