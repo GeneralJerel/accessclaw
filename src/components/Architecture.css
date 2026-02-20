@@ -1,0 +1,76 @@
+.architecture-section {
+    padding: var(--space-24) var(--space-6);
+    position: relative;
+}
+
+.architecture-header {
+    margin-bottom: var(--space-16);
+}
+
+.architecture-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-4);
+}
+
+.architecture-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.arch-layer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.arch-layer:hover {
+    transform: translateX(10px);
+    border-color: var(--accent-primary);
+}
+
+.layer-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.layer-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-1);
+}
+
+.layer-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.connection-line {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-2) 0;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.connection-line::before,
+.connection-line::after {
+    content: '';
+    width: 2px;
+    height: 20px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
+}

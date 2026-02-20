@@ -1,0 +1,84 @@
+.target-user-section {
+    padding: var(--space-24) var(--space-6);
+}
+
+.target-card {
+    padding: var(--space-8);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.target-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: var(--space-6);
+}
+
+.icon-wrapper {
+    background: rgba(168, 85, 247, 0.1);
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.target-header h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-1);
+}
+
+.target-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+}
+
+.detail-column h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.success-text {
+    color: var(--success);
+}
+
+.danger-text {
+    color: var(--danger);
+}
+
+.check-list li,
+.cross-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.check-list li svg {
+    color: var(--success);
+}
+
+.cross-list li svg {
+    color: var(--danger);
+}
+
+@media (max-width: 640px) {
+    .target-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .target-details {
+        grid-template-columns: 1fr;
+    }
+}
