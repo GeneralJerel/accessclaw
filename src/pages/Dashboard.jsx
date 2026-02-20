@@ -429,6 +429,9 @@ function Dashboard() {
                                 {msg.role === 'system' ? <Bot size={16} /> : <User size={16} />}
                             </div>
                             <div className="message-bubble">
+                                <div className="message-sender-label">
+                                    {msg.role === 'system' ? 'ChiefClaw 🦞' : 'You'}
+                                </div>
                                 {msg.text}
                             </div>
                         </div>

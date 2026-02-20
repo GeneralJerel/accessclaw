@@ -130,6 +130,23 @@
     color: var(--text);
 }
 
+.message-sender-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.25rem;
+    color: var(--muted);
+}
+
+.system .message-sender-label {
+    color: var(--accent);
+}
+
+.user .message-sender-label {
+    color: var(--muted);
+}
+
 .system .message-bubble {
     background: var(--surface-soft);
     border: 1px solid var(--line);
