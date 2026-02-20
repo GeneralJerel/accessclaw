@@ -224,42 +224,73 @@ function Dashboard() {
 
             const msgLower = userMessage.toLowerCase();
 
-            // 5. Generate Invoice
-            if (msgLower.includes('generate invoice') || msgLower.includes('create invoice') || msgLower.includes('bill alex') || msgLower.includes('invoice alex')) {
-                aiResponse = "I've drafted an invoice for Alex Chen at StartupX based on the tracked hours for the 'Q3 Design Project'. Please review and approve to send it.";
-                actionToTake = 'invoice_gen';
+            const intents = [
+                // Dashboard / Home (highest priority — navigates back to daily brief)
+                {
+                    patterns: ['show me the dashboard', 'show my dashboard', 'show dashboard', 'open dashboard', 'go to dashboard', 'go home', 'go back', 'home', 'dashboard', 'daily brief', 'brief'],
+                    workspace: 'empty',
+                    response: "Here's your dashboard. Let me know if there's anything you'd like to dive into.",
+                },
+                // Explicit "show my ___" and "open ___" phrases
+                {
+                    patterns: ['show my inbox', 'show inbox', 'open inbox', 'my inbox', 'check inbox', 'check email', 'check mail'],
+                    workspace: 'inbox',
+                    response: "Here's your inbox \u2014 I've sorted emails by priority for you.",
+                },
+                {
+                    patterns: ['show my calendar', 'show calendar', 'open calendar', 'my calendar', 'show my schedule', 'show schedule', 'my schedule', 'check schedule'],
+                    workspace: 'schedule',
+                    response: "Here is your schedule for today based on your deep work preferences. I've also tentatively proposed a 1:00 PM sync with Sarah.",
+                },
+                {
+                    patterns: ['show my invoice', 'show invoices', 'open invoice', 'my invoices', 'show my billing', 'check invoices'],
+                    workspace: 'invoice_gen',
+                    response: "Here are your invoices. You can review drafts or check sent ones.",
+                },
+                {
+                    patterns: ['show my tasks', 'show tasks', 'show my todos', 'my tasks', 'open tasks', 'check tasks'],
+                    workspace: 'todos',
+                    response: `You have ${mockTasks.length} tasks today. The highest priority is prepping for the Riviera Rebrand call at 1 PM. I've organized them by priority for you.`,
+                },
+                {
+                    patterns: ['show my clients', 'show clients', 'open crm', 'my clients', 'client pipeline', 'check clients'],
+                    workspace: 'crm',
+                    response: "Here is an overview of your active clients. It looks like Mark Tech LLC has an active issue (overdue invoice) that we should address today.",
+                },
+                // Action-specific phrases
+                {
+                    patterns: ['generate invoice', 'create invoice', 'bill alex', 'invoice alex'],
+                    workspace: 'invoice_gen',
+                    response: "I've drafted an invoice for Alex Chen at StartupX based on the tracked hours for the 'Q3 Design Project'. Please review and approve to send it.",
+                },
+                {
+                    patterns: ['sarah', 'draft', 'reply'],
+                    workspace: 'drafting',
+                    response: "I've pulled up Sarah's thread and drafted a quick follow-up response based on your previous history.",
+                    selectEmail: mockEmails[0],
+                },
+                // Broad keyword fallbacks (lower priority)
+                { patterns: ['inbox', 'emails', 'mail'], workspace: 'inbox', response: "Here's your inbox." },
+                { patterns: ['calendar', 'schedule', 'meet'], workspace: 'schedule', response: "Here is your schedule for today." },
+                { patterns: ['invoice', 'billing', 'pay'], workspace: 'invoice_gen', response: "Opening your invoices..." },
+                { patterns: ['client', 'crm', 'follow up', 'pipeline'], workspace: 'crm', response: "Here are your clients." },
+                { patterns: ['todo', 'task', 'to-do', 'to do'], workspace: 'todos', response: "Here are your tasks." },
+                { patterns: ['email'], workspace: 'drafting', response: "I've pulled up the thread.", selectEmail: mockEmails[0] },
+            ];
+
+            let matched = false;
+            for (const intent of intents) {
+                if (intent.patterns.some(p => msgLower.includes(p))) {
+                    aiResponse = intent.response;
+                    actionToTake = intent.workspace;
+                    if (intent.selectEmail) emailToSelect = intent.selectEmail;
+                    matched = true;
+                    break;
+                }
             }
-            // 1. Email & Drafting
-            else if (msgLower.includes('sarah') || msgLower.includes('draft') || msgLower.includes('email')) {
-                aiResponse = "I've pulled up Sarah's thread and drafted a quick follow-up response based on your previous history.";
-                actionToTake = 'drafting';
-                emailToSelect = mockEmails[0];
-            }
-            // 2. Invoice Management
-            else if (msgLower.includes('invoice') || msgLower.includes('pay')) {
-                aiResponse = "I've filtered your inbox to show the overdue invoice for Mark Tech LLC. Would you like me to draft a reminder?";
-                actionToTake = 'inbox';
-                emailToSelect = mockEmails[1];
-            }
-            // 3. Schedule Workspace
-            else if (msgLower.includes('schedule') || msgLower.includes('meet') || msgLower.includes('calendar')) {
-                aiResponse = "Here is your schedule for today based on your deep work preferences. I've also tentatively proposed a 1:00 PM sync with Sarah.";
-                actionToTake = 'schedule';
-            }
-            // 4. Client Follow up / CRM
-            else if (msgLower.includes('client') || msgLower.includes('crm') || msgLower.includes('follow up') || msgLower.includes('pipeline')) {
-                aiResponse = "Here is an overview of your active clients. It looks like Mark Tech LLC has an active issue (overdue invoice) that we should address today.";
-                actionToTake = 'crm';
-            }
-            // 6. Tasks / Todo
-            else if (msgLower.includes('todo') || msgLower.includes('task') || msgLower.includes('to-do') || msgLower.includes('to do')) {
-                aiResponse = `You have ${mockTasks.length} tasks today. The highest priority is prepping for the Riviera Rebrand call at 1 PM. I've organized them by priority for you.`;
-                actionToTake = 'todos';
-            }
-            // Fallback
-            else {
+            if (!matched) {
                 aiResponse = "I can certainly help with that. Would you like me to check your Inbox, Schedule, or Client Pipeline first?";
-                actionToTake = activeWorkspace; // Keep it where it is
+                actionToTake = activeWorkspace;
             }
 
             setIsTyping(false);

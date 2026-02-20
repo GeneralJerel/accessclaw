@@ -287,9 +287,26 @@ Calendar sync  ──→  Schedule section appears
 |---------|----------|
 | **Inline Approve** | Approve an action directly from the dashboard without navigating away |
 | **Preview Drawer** | Tap "Preview" to see the full draft in a slide-up panel; edit inline if needed |
-| **Chat as Command** | Type natural language into the sidebar to redirect Claw ("Don't follow up with Sarah this week") |
+| **Chat as Command** | Type natural language into the sidebar to open workspace views or trigger actions (see supported commands below) |
 | **Quick Action Chips** | Context-aware suggested actions appear in chat based on dashboard state |
 | **Pull to Refresh** | Mobile: pull-to-refresh triggers a fresh brief and re-prioritization |
+
+### Supported Chat Commands
+
+The chat sidebar recognizes natural-language phrases to navigate between workspace views. Commands are matched by priority — explicit phrases first, then broad keyword fallbacks.
+
+| Intent | Example Phrases | Workspace Opened |
+|--------|-----------------|------------------|
+| **Dashboard / Home** | "show me the dashboard", "go home", "go back", "daily brief" | Daily Brief (home) |
+| **View Inbox** | "show my inbox", "check email", "check mail" | Triage Inbox |
+| **View Calendar** | "show my calendar", "show my schedule", "check schedule" | Smart Schedule |
+| **View Invoices** | "show my invoice", "show invoices", "check invoices" | Invoices |
+| **View Tasks** | "show my tasks", "show my todos", "check tasks" | Today's Tasks |
+| **View Clients** | "show my clients", "open crm", "client pipeline" | Client Pipeline |
+| **Generate Invoice** | "generate invoice", "create invoice", "bill alex" | Invoice Generation |
+| **Draft / Reply** | "draft", "reply", "sarah" | Email Drafting |
+
+Broad keywords (`inbox`, `calendar`, `invoice`, `client`, `task`, `email`, etc.) also work as fallbacks when no explicit phrase matches.
 
 ### State Transitions
 
