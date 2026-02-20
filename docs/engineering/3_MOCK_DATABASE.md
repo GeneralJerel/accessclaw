@@ -28,8 +28,9 @@ The mock database simulates a Firebase/Firestore-style NoSQL store entirely in-m
 ```
 mock-data/
 ├── db.js           # Core database engine (collection factory, CRUD, subscribe)
-├── seed.js         # All seed data for the 6 collections
+├── seed.js         # All seed data for the 6 collections + scenarioOnlyEmails
 ├── index.js        # Boots the db, seeds collections, exports helpers
+├── eventBus.js     # Lightweight pub/sub for cross-page communication
 └── scenario/       # Legacy files (backward-compatible re-exports)
     ├── index.js    # Bridge: re-exports from seed.js for old imports
     ├── calendar.js # calendarSlots, calendarInvite (scenario-specific)
@@ -130,6 +131,47 @@ sendEmail({
 ```
 
 The email is immediately added to `db.collection('inbox')` and any subscribers are notified.
+
+---
+
+## Event Bus — Cross-Page Communication
+
+The event bus (`mock-data/eventBus.js`) is a lightweight pub/sub singleton that allows the Scenario page to drive the Dashboard UI in real time.
+
+```js
+import eventBus from '../../mock-data/eventBus';
+
+// Emit from Scenario
+eventBus.emit('chat:message', { text: 'New email from David Park...', role: 'system' });
+eventBus.emit('ui:switchView', { workspace: 'inbox' });
+eventBus.emit('ui:selectEmail', { emailId: 'email_01' });
+
+// Subscribe from Dashboard
+const unsub = eventBus.on('chat:message', ({ text, role }) => {
+  setMessages(prev => [...prev, { id: Date.now(), role, text }]);
+});
+unsub(); // cleanup
+```
+
+| Event | Payload | Dashboard Reaction |
+|-------|---------|-------------------|
+| `chat:message` | `{ text, role }` | Appends message to AI chat panel |
+| `chat:typing` | `{ isTyping }` | Shows/hides typing indicator |
+| `ui:switchView` | `{ workspace }` | Switches active workspace view |
+| `ui:selectEmail` | `{ emailId }` | Selects and highlights the email |
+
+---
+
+## Scenario-Only Emails
+
+The David Park thread (email_01, email_02, email_03) is exported separately as `scenarioOnlyEmails` from `seed.js`. These emails are **not** seeded into the inbox on startup — they are dynamically added by the Scenario page when each step fires, which triggers Dashboard reactivity via `db.subscribe`.
+
+```js
+import { scenarioOnlyEmails } from '../../mock-data/seed';
+
+// Scenario adds them one at a time
+db.collection('inbox').add({ ...scenarioOnlyEmails[0] });
+```
 
 ---
 

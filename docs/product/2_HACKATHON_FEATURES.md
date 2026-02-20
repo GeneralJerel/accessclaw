@@ -199,7 +199,7 @@ Mock data lives in `/mock-data` as a Firebase-style NoSQL in-memory database wit
 
 | Collection | Documents | Status |
 |------------|-----------|--------|
-| `inbox` | 8 emails (inbound + outbound, threaded, with AI metadata) | Seeded |
+| `inbox` | 5 emails seeded + 3 scenario-only emails added dynamically | Seeded |
 | `calendar` | 6 events (calls, deep work, routine, prep blocks) | Seeded |
 | `clients` | 4 client profiles with status and last contact | Seeded |
 | `invoices` | 4 invoices (paid, outstanding, pending-proposal) | Seeded |
@@ -207,5 +207,7 @@ Mock data lives in `/mock-data` as a Firebase-style NoSQL in-memory database wit
 | `dailyBriefs` | 1 full natural-language morning brief with sections | Seeded |
 
 The db supports `getAll`, `get`, `add`, `update`, `remove`, `query`, and `subscribe`. The `sendEmail()` helper appends new emails to the inbox at runtime (e.g. when the user clicks "Approve & Send").
+
+**Scenario-to-Dashboard sync:** The Scenario page's "Next Step" button dispatches events via an event bus (`mock-data/eventBus.js`) that the Dashboard consumes. Each step narrates actions in the AI chat panel (typing indicator, then message), switches the active workspace view, and highlights the relevant email. The David Park thread (emails 01-03) is not pre-seeded — it is dynamically injected into the inbox collection as the scenario progresses, triggering reactive updates on the Dashboard.
 
 See `/docs/engineering/3_MOCK_DATABASE.md` for full API reference.

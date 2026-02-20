@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Dashboard.css';
 import { Mail, Calendar, FileText, Settings, Search, CheckCircle2, Circle, AlertCircle, RefreshCw, Send, User, Bot, Sparkles, Clock, Users, DollarSign, Download, ListTodo, ArrowUpRight, ArrowDownLeft, ArrowUpRight as ArrowOut, ChevronDown, ChevronRight, Zap, MessageSquare, PenLine } from 'lucide-react';
 
 import db, { sendEmail, freelancer, getThread } from '../../mock-data/index';
+import eventBus from '../../mock-data/eventBus';
 
-const scenarioEmails = db.collection('inbox').getAll();
 const calendarEvents = db.collection('calendar').getAll();
 const scenarioClients = db.collection('clients').getAll();
 const dailyBrief = db.collection('dailyBriefs').getAll()[0];
@@ -54,26 +54,28 @@ function getDraftForEmail(email) {
   }
 }
 
-const mockEmails = scenarioEmails
-    .filter(e => e.direction === 'inbound')
-    .map(e => ({
-        id: e.id,
-        threadId: e.threadId,
-        sender: e.from.name,
-        senderEmail: e.from.email,
-        subject: e.subject,
-        snippet: e.clawSummary,
-        clawSummary: e.clawSummary,
-        body: e.body,
-        time: formatTime(e.timestamp),
-        timestamp: e.timestamp,
-        tag: e.category === 'new-lead' ? 'New Lead' : e.category === 'revision-request' ? 'Revision' : e.category === 'client-feedback' ? 'Feedback' : e.category === 'payment-notification' ? 'Payment' : 'Info',
-        priority: e.urgency,
-        category: e.category,
-        clawAction: e.clawAction,
-        requiresReply: e.requiresReply,
-        linkedClientId: e.linkedClientId,
-    }));
+function mapEmailsForDisplay(emails) {
+    return emails
+        .filter(e => e.direction === 'inbound')
+        .map(e => ({
+            id: e.id,
+            threadId: e.threadId,
+            sender: e.from.name,
+            senderEmail: e.from.email,
+            subject: e.subject,
+            snippet: e.clawSummary,
+            clawSummary: e.clawSummary,
+            body: e.body,
+            time: formatTime(e.timestamp),
+            timestamp: e.timestamp,
+            tag: e.category === 'new-lead' ? 'New Lead' : e.category === 'revision-request' ? 'Revision' : e.category === 'client-feedback' ? 'Feedback' : e.category === 'payment-notification' ? 'Payment' : 'Info',
+            priority: e.urgency,
+            category: e.category,
+            clawAction: e.clawAction,
+            requiresReply: e.requiresReply,
+            linkedClientId: e.linkedClientId,
+        }));
+}
 
 function ThreadMessage({ email, isLast }) {
   const [expanded, setExpanded] = useState(isLast);
@@ -176,7 +178,13 @@ const mockInvoiceDetails = {
 };
 
 function Dashboard() {
-    const [selectedEmail, setSelectedEmail] = useState(mockEmails[0]);
+    const [inboxEmails, setInboxEmails] = useState(() => db.collection('inbox').getAll());
+    const mockEmails = useMemo(() => mapEmailsForDisplay(inboxEmails), [inboxEmails]);
+
+    const [selectedEmail, setSelectedEmail] = useState(() => {
+        const initial = mapEmailsForDisplay(db.collection('inbox').getAll());
+        return initial[0] || null;
+    });
     const [detailTab, setDetailTab] = useState('message');
     const [todoItems, setTodoItems] = useState(mockTasks);
 
@@ -206,6 +214,39 @@ function Dashboard() {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    // Reactive inbox — re-render when scenario adds emails
+    useEffect(() => {
+        const unsub = db.collection('inbox').subscribe((emails) => {
+            setInboxEmails(emails);
+        });
+        return unsub;
+    }, []);
+
+    // Event bus — scenario drives the chat and UI
+    useEffect(() => {
+        const unsubs = [
+            eventBus.on('chat:message', ({ text, role }) => {
+                setMessages(prev => [...prev, { id: Date.now(), role, text }]);
+            }),
+            eventBus.on('chat:typing', ({ isTyping: typing }) => {
+                setIsTyping(typing);
+            }),
+            eventBus.on('ui:switchView', ({ workspace }) => {
+                setActiveWorkspace(workspace);
+            }),
+            eventBus.on('ui:selectEmail', ({ emailId }) => {
+                const freshEmails = db.collection('inbox').getAll();
+                const mapped = mapEmailsForDisplay(freshEmails);
+                const found = mapped.find(e => e.id === emailId);
+                if (found) {
+                    setSelectedEmail(found);
+                    setDetailTab('message');
+                }
+            }),
+        ];
+        return () => unsubs.forEach(fn => fn());
+    }, []);
 
     const handleSendMessage = (e) => {
         e.preventDefault();
@@ -422,7 +463,7 @@ function Dashboard() {
                                 {mockEmails.map(email => (
                                     <div
                                         key={email.id}
-                                        className={`email-item ${selectedEmail.id === email.id ? 'selected' : ''}`}
+                                        className={`email-item ${selectedEmail?.id === email.id ? 'selected' : ''}`}
                                         onClick={() => {
                                             setSelectedEmail(email);
                                             setDetailTab('message');
@@ -443,7 +484,7 @@ function Dashboard() {
                             </div>
                         </section>
 
-                        {activeWorkspace === 'drafting' && (
+                        {activeWorkspace === 'drafting' && selectedEmail && (
                             <section className="email-detail page animate-fade-in">
                                 <div className="detail-header-v2">
                                     <div className="detail-header-top">

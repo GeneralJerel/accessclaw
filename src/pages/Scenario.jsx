@@ -7,14 +7,33 @@ import {
 } from 'lucide-react';
 
 import db, { freelancer } from '../../mock-data/index';
+import { scenarioOnlyEmails } from '../../mock-data/seed';
+import eventBus from '../../mock-data/eventBus';
 import { calendarSlots, calendarInvite } from '../../mock-data/scenario/calendar';
 import { notionPage } from '../../mock-data/scenario/tasks';
 import { openclawTasks } from '../../mock-data/scenario/openclawTasks';
 
 const clients = db.collection('clients').getAll();
-const allEmails = db.collection('inbox').getAll();
 const dailyBrief = db.collection('dailyBriefs').getAll()[0];
 const tasks = db.collection('tasks').getAll();
+
+const SCENARIO_CHAT_MESSAGES = [
+  'New email received from David Park — rebrand inquiry for Riviera Hospitality Group. Triaging now...',
+  "I've drafted a response with 3 calendar slots and sent it to David on your behalf.",
+  'David confirmed Thursday at 1 PM PST. Processing the confirmation...',
+  'Calendar invite created — Intro Call with David Park, Thursday 1 PM via Google Meet.',
+  'Prep tasks created in ClickUp. Discovery page set up in Notion.',
+  'Good morning, Maya. Here is your daily brief for today.',
+];
+
+const SCENARIO_VIEW_MAP = [
+  'inbox',
+  'drafting',
+  'inbox',
+  'schedule',
+  'todos',
+  'empty',
+];
 
 const SCENARIO_SEQUENCE = [
   { emailId: 'email_01', delay: 0, logMessage: 'David Park sends an email requesting a call about a rebrand project.' },
@@ -226,6 +245,29 @@ function Scenario() {
     timeoutsRef.current = [];
   };
 
+  const dispatchToDashboard = (stepIdx, email) => {
+    eventBus.emit('chat:typing', { isTyping: true });
+
+    const t1 = setTimeout(() => {
+      eventBus.emit('chat:typing', { isTyping: false });
+      eventBus.emit('chat:message', {
+        text: SCENARIO_CHAT_MESSAGES[stepIdx],
+        role: 'system',
+      });
+    }, 800);
+    timeoutsRef.current.push(t1);
+
+    const t2 = setTimeout(() => {
+      eventBus.emit('ui:switchView', {
+        workspace: SCENARIO_VIEW_MAP[stepIdx],
+      });
+      if (email && email.direction === 'inbound') {
+        eventBus.emit('ui:selectEmail', { emailId: email.id });
+      }
+    }, 1200);
+    timeoutsRef.current.push(t2);
+  };
+
   const simulateNextStep = (stepIdx) => {
     if (stepIdx >= SCENARIO_SEQUENCE.length) {
       setIsRunning(false);
@@ -242,14 +284,21 @@ function Scenario() {
     };
 
     if (step.emailId) {
-      const email = allEmails.find(e => e.id === step.emailId);
-      setFeedItems(prev => [...prev, { type: 'email', data: email, key: step.emailId }]);
+      const email = scenarioOnlyEmails.find(e => e.id === step.emailId);
+      if (email) {
+        db.collection('inbox').add({ ...email });
+        setFeedItems(prev => [...prev, { type: 'email', data: email, key: step.emailId }]);
+        dispatchToDashboard(stepIdx, email);
+      }
     } else if (step.event === 'calendar') {
       setFeedItems(prev => [...prev, { type: 'calendar', key: 'calendar' }]);
+      dispatchToDashboard(stepIdx, null);
     } else if (step.event === 'tasks') {
       setFeedItems(prev => [...prev, { type: 'tasks', key: 'tasks' }]);
+      dispatchToDashboard(stepIdx, null);
     } else if (step.event === 'brief') {
       setFeedItems(prev => [...prev, { type: 'brief', key: 'brief' }]);
+      dispatchToDashboard(stepIdx, null);
     }
 
     setActivityLog(prev => [logEntry, ...prev]);
@@ -269,6 +318,7 @@ function Scenario() {
       setFeedItems([]);
       setActivityLog([]);
       setCurrentStep(-1);
+      scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
     }
 
     setIsRunning(true);
@@ -281,6 +331,7 @@ function Scenario() {
     setActivityLog([]);
     setCurrentStep(-1);
     setIsRunning(true);
+    scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
 
     let cumDelay = 0;
     SCENARIO_SEQUENCE.forEach((step, idx) => {
@@ -301,6 +352,7 @@ function Scenario() {
     setActivityLog([]);
     setCurrentStep(-1);
     setIsRunning(false);
+    scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
   };
 
   const nextStepLabel = currentStep < 0

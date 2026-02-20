@@ -3,6 +3,7 @@ import './App.css'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Scenario from './pages/Scenario'
+import Setup from './pages/Setup'
 
 function NavLink({ to, children }) {
   const location = useLocation();
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/scenario" element={<Scenario />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/setup" element={<Setup />} />
         </Routes>
       </div>
     </Router>

@@ -160,9 +160,9 @@ One flag: Jessica Tran at Bloom Collective hasn't responded to your proposal in 
   },
 ];
 
-// ─── Collection: inbox ───────────────────────────────────────────────────────
+// ─── Scenario-only emails (added to inbox when the scenario runs) ────────────
 
-export const inboxSeed = [
+export const scenarioOnlyEmails = [
   {
     id: "email_01",
     threadId: "thread_david_rebrand",
@@ -257,6 +257,11 @@ Thursday at 1 PM PST works perfectly. Talk to you then!
     linkedClientId: "cli_01",
     linkedCalendarEventId: "evt_03",
   },
+];
+
+// ─── Collection: inbox ───────────────────────────────────────────────────────
+
+export const inboxSeed = [
   {
     id: "email_04",
     threadId: "thread_nourish_phase2",
