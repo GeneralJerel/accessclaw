@@ -209,11 +209,17 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
 
     // Chat Interface State
     const [chatInput, setChatInput] = useState('');
+    const [localMessages, setLocalMessages] = useState([
+        { id: 1, role: 'system', content: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
+        { id: 2, role: 'system', content: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
+    ]);
+    const [isTyping, setIsTyping] = useState(false);
+    const chatMessages = copilotConnected ? visibleMessages : localMessages;
+    const chatLoading = copilotConnected ? isLoading : isTyping;
 
     const [activeWorkspace, setActiveWorkspace] = useState('empty');
     const messagesEndRef = useRef(null);
 
-    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -221,7 +227,7 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
 
     useEffect(() => {
         scrollToBottom();
-    }, [visibleMessages]);
+    }, [chatMessages]);
 
     // Reactive inbox — re-render when scenario adds emails
     useEffect(() => {
@@ -239,15 +245,15 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
             }),
             eventBus.on('scenario:reset', () => {
                 scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
-                setMessages([
-                    { id: 1, role: 'system', text: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
-                    { id: 2, role: 'system', text: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
+                setLocalMessages([
+                    { id: 1, role: 'system', content: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
+                    { id: 2, role: 'system', content: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
                 ]);
                 setActiveWorkspace('empty');
                 setSelectedEmail(null);
             }),
             eventBus.on('chat:message', ({ text, role }) => {
-                setMessages(prev => [...prev, { id: Date.now(), role, text }]);
+                setLocalMessages(prev => [...prev, { id: Date.now(), role, content: text }]);
             }),
             eventBus.on('chat:typing', ({ isTyping: typing }) => {
                 setIsTyping(typing);
@@ -270,12 +276,14 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!chatInput.trim() || isLoading) return;
+        if (!chatInput.trim() || chatLoading) return;
 
-        // Send message to CopilotKit/OpenClaw
-        appendMessage(chatInput);
+        if (copilotConnected) {
+            appendMessage(chatInput);
+        } else {
+            setLocalMessages(prev => [...prev, { id: Date.now(), role: 'user', content: chatInput }]);
+        }
         setChatInput('');
-
     };
 
 
@@ -296,7 +304,7 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
                 </div>
 
                 <div className="chat-messages">
-                    {visibleMessages.map((msg, idx) => {
+                    {chatMessages.map((msg, idx) => {
                         const role = msg.role === 'user' ? 'user' : (msg.role === 'notification' ? 'system notification' : 'system');
                         let text = '';
 
@@ -323,7 +331,7 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
                             </div>
                         );
                     })}
-                    {isLoading && (
+                    {chatLoading && (
                         <div className="message-wrapper system">
                             <div className="message-avatar"><Bot size={16} /></div>
                             <div className="message-bubble typing-indicator">
@@ -341,9 +349,9 @@ function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoad
                             placeholder="E.g. 'Show my schedule' or 'Check invoices'"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
-                            disabled={isLoading}
-                        />
-                        <button type="submit" className={`send-btn ${chatInput.trim() ? 'active' : ''}`} disabled={!chatInput.trim() || isLoading}>
+                        disabled={chatLoading}
+                    />
+                    <button type="submit" className={`send-btn ${chatInput.trim() ? 'active' : ''}`} disabled={!chatInput.trim() || chatLoading}>
                             <Send size={18} />
                         </button>
                     </form>
