@@ -180,7 +180,7 @@ const mockInvoiceDetails = {
     ]
 };
 
-function Dashboard() {
+function Dashboard({ deviceToken, setDeviceToken }) {
     const location = useLocation();
     const isDemoMode = new URLSearchParams(location.search).get('chiefclaw') === 'true';
 
@@ -317,19 +317,18 @@ function Dashboard() {
 
     };
 
-    // Connection State — auto-connect in demo mode
-    const [isConnected, setIsConnected] = useState(isDemoMode);
+    // Connection State
     const [password, setPassword] = useState('');
 
     const handleConnect = (e) => {
         e.preventDefault();
         // Just mock the connection for now
         if (password) {
-            setIsConnected(true);
+            setDeviceToken(password);
         }
     };
 
-    if (!isConnected) {
+    if (!deviceToken) {
         return (
             <div className="container stack" style={{ margin: '8rem auto', maxWidth: '600px', textAlign: 'center' }}>
                 <div className="page stack" style={{ padding: '3rem 2rem' }}>

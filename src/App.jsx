@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { CopilotKit } from "@copilotkit/react-core";
+import { useState } from "react";
 import "@copilotkit/react-ui/styles.css";
 import './App.css'
 import Home from './pages/Home'
@@ -13,10 +14,13 @@ function NavLink({ to, children }) {
 }
 
 function App() {
+  const [deviceToken, setDeviceToken] = useState('');
   return (
     <CopilotKit
       runtimeUrl="http://localhost:18789/v1/clawg-ui"
-    // We will pass headers dynamically later when the user connects
+      headers={{
+        Authorization: `Bearer ${deviceToken}`
+      }}
     >
       <Router>
         <div className="container">
@@ -31,7 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/scenario" element={<Scenario />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard deviceToken={deviceToken} setDeviceToken={setDeviceToken} />} />
             <Route path="/setup" element={<Setup />} />
           </Routes>
         </div>
