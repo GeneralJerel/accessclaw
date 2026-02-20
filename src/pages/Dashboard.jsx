@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import './Dashboard.css';
 import { Mail, Calendar, FileText, Settings, Search, CheckCircle2, Circle, AlertCircle, RefreshCw, Send, User, Bot, Sparkles, Clock, Users, DollarSign, Download, ListTodo, ArrowUpRight, ArrowDownLeft, ArrowUpRight as ArrowOut, ChevronDown, ChevronRight, Zap, MessageSquare, PenLine } from 'lucide-react';
+import { useCopilotAction, useCopilotReadable, useCopilotChat } from "@copilotkit/react-core";
 
 import { useLocation } from 'react-router-dom';
 import db, { sendEmail, freelancer, getThread } from '../../mock-data/index';
@@ -13,47 +14,47 @@ const dailyBrief = db.collection('dailyBriefs').getAll()[0];
 const scenarioTasks = db.collection('tasks').getAll();
 
 function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function getInitials(name) {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
 const WORKFLOW_LABELS = {
-  'new-lead': 'New Lead Response',
-  'revision-request': 'Revision Acknowledgment',
-  'client-feedback': 'Feedback Reply',
-  'payment-notification': 'Payment Logging',
-  'notification': 'FYI — No Action',
+    'new-lead': 'New Lead Response',
+    'revision-request': 'Revision Acknowledgment',
+    'client-feedback': 'Feedback Reply',
+    'payment-notification': 'Payment Logging',
+    'notification': 'FYI — No Action',
 };
 
 const CONTEXT_SIGNALS = {
-  'respond-with-calendar-slots': ['Calendar availability', 'Client profile', "Maya's voice"],
-  'create-calendar-invite': ['Calendar sync', 'Meeting details'],
-  'draft-reply': ['Client history', 'Project context', "Maya's voice"],
-  'log-payment': ['Stripe data', 'Invoice records'],
-  'none': [],
+    'respond-with-calendar-slots': ['Calendar availability', 'Client profile', "Maya's voice"],
+    'create-calendar-invite': ['Calendar sync', 'Meeting details'],
+    'draft-reply': ['Client history', 'Project context', "Maya's voice"],
+    'log-payment': ['Stripe data', 'Invoice records'],
+    'none': [],
 };
 
 function getDraftForEmail(email) {
-  const firstName = email.sender.split(' ')[0];
-  switch (email.category) {
-    case 'new-lead':
-      return `Hi ${firstName},\n\nThank you so much for reaching out — that sounds like a wonderful project, and I'd love to learn more about your vision.\n\nI have a few openings this week for a quick intro call. Would any of these work?\n\n• Thursday, Feb 20 — 1:00 PM PST\n• Friday, Feb 21 — 10:00 AM PST\n• Friday, Feb 21 — 3:00 PM PST\n\nLooking forward to the conversation!\n\nWarm regards,\nMaya`;
-    case 'revision-request':
-      return `Hi ${firstName},\n\nThanks for the detailed feedback — both notes make sense. I'll add the social media avatar section and explore some brighter options for the secondary palette.\n\nI can have the updated version to you by Friday as requested. I'll send a progress check tomorrow afternoon.\n\nBest,\nMaya`;
-    case 'client-feedback':
-      return `Hi ${firstName},\n\nGreat to hear the screens are looking good! I'll update the recipe detail background — thinking a warm linen tone that feels more inviting.\n\nI'll send the revision by end of day tomorrow.\n\nThanks for the quick turnaround!\n\nBest,\nMaya`;
-    case 'payment-notification':
-      return '';
-    default:
-      return `Hi ${firstName},\n\nThanks for reaching out! I'll review this and get back to you shortly.\n\nBest,\nMaya`;
-  }
+    const firstName = email.sender.split(' ')[0];
+    switch (email.category) {
+        case 'new-lead':
+            return `Hi ${firstName},\n\nThank you so much for reaching out — that sounds like a wonderful project, and I'd love to learn more about your vision.\n\nI have a few openings this week for a quick intro call. Would any of these work?\n\n• Thursday, Feb 20 — 1:00 PM PST\n• Friday, Feb 21 — 10:00 AM PST\n• Friday, Feb 21 — 3:00 PM PST\n\nLooking forward to the conversation!\n\nWarm regards,\nMaya`;
+        case 'revision-request':
+            return `Hi ${firstName},\n\nThanks for the detailed feedback — both notes make sense. I'll add the social media avatar section and explore some brighter options for the secondary palette.\n\nI can have the updated version to you by Friday as requested. I'll send a progress check tomorrow afternoon.\n\nBest,\nMaya`;
+        case 'client-feedback':
+            return `Hi ${firstName},\n\nGreat to hear the screens are looking good! I'll update the recipe detail background — thinking a warm linen tone that feels more inviting.\n\nI'll send the revision by end of day tomorrow.\n\nThanks for the quick turnaround!\n\nBest,\nMaya`;
+        case 'payment-notification':
+            return '';
+        default:
+            return `Hi ${firstName},\n\nThanks for reaching out! I'll review this and get back to you shortly.\n\nBest,\nMaya`;
+    }
 }
 
 function mapEmailsForDisplay(emails) {
@@ -80,61 +81,61 @@ function mapEmailsForDisplay(emails) {
 }
 
 function ThreadMessage({ email, isLast }) {
-  const [expanded, setExpanded] = useState(isLast);
-  const isOutbound = email.direction === 'outbound';
-  const senderName = isOutbound ? email.from.name : email.from.name;
+    const [expanded, setExpanded] = useState(isLast);
+    const isOutbound = email.direction === 'outbound';
+    const senderName = isOutbound ? email.from.name : email.from.name;
 
-  return (
-    <div className={`thread-msg ${isOutbound ? 'outbound' : 'inbound'} ${expanded ? 'expanded' : ''}`}>
-      <button className="thread-msg-header" onClick={() => setExpanded(!expanded)}>
-        <div className="thread-msg-left">
-          <div className={`thread-avatar ${isOutbound ? 'avatar-maya' : ''}`}>
-            {getInitials(senderName)}
-          </div>
-          <div className="thread-msg-meta">
-            <span className="thread-sender-name">{senderName}</span>
-            {email.generatedBy === 'openclaw' && (
-              <span className="thread-claw-badge"><Bot size={10} /> Claw</span>
+    return (
+        <div className={`thread-msg ${isOutbound ? 'outbound' : 'inbound'} ${expanded ? 'expanded' : ''}`}>
+            <button className="thread-msg-header" onClick={() => setExpanded(!expanded)}>
+                <div className="thread-msg-left">
+                    <div className={`thread-avatar ${isOutbound ? 'avatar-maya' : ''}`}>
+                        {getInitials(senderName)}
+                    </div>
+                    <div className="thread-msg-meta">
+                        <span className="thread-sender-name">{senderName}</span>
+                        {email.generatedBy === 'openclaw' && (
+                            <span className="thread-claw-badge"><Bot size={10} /> Claw</span>
+                        )}
+                    </div>
+                </div>
+                <div className="thread-msg-right">
+                    <span className="thread-direction-icon">
+                        {isOutbound ? <ArrowOut size={12} /> : <ArrowDownLeft size={12} />}
+                    </span>
+                    <span className="thread-time">{formatTime(email.timestamp)}</span>
+                    {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </div>
+            </button>
+            {expanded && (
+                <div className="thread-msg-body">
+                    {email.body.split('\n\n').map((para, i) => (
+                        <p key={i}>{para}</p>
+                    ))}
+                </div>
             )}
-          </div>
+            {!expanded && (
+                <div className="thread-msg-preview">
+                    {email.body.split('\n')[0].slice(0, 80)}{email.body.length > 80 ? '...' : ''}
+                </div>
+            )}
         </div>
-        <div className="thread-msg-right">
-          <span className="thread-direction-icon">
-            {isOutbound ? <ArrowOut size={12} /> : <ArrowDownLeft size={12} />}
-          </span>
-          <span className="thread-time">{formatTime(email.timestamp)}</span>
-          {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        </div>
-      </button>
-      {expanded && (
-        <div className="thread-msg-body">
-          {email.body.split('\n\n').map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
-        </div>
-      )}
-      {!expanded && (
-        <div className="thread-msg-preview">
-          {email.body.split('\n')[0].slice(0, 80)}{email.body.length > 80 ? '...' : ''}
-        </div>
-      )}
-    </div>
-  );
+    );
 }
 
 function ThreadView({ threadId }) {
-  if (!threadId) return null;
-  const thread = getThread(threadId);
-  if (!thread.length) return null;
+    if (!threadId) return null;
+    const thread = getThread(threadId);
+    if (!thread.length) return null;
 
-  return (
-    <div className="thread-view">
-      <div className="thread-count">{thread.length} message{thread.length > 1 ? 's' : ''} in thread</div>
-      {thread.map((email, i) => (
-        <ThreadMessage key={email.id} email={email} isLast={i === thread.length - 1} />
-      ))}
-    </div>
-  );
+    return (
+        <div className="thread-view">
+            <div className="thread-count">{thread.length} message{thread.length > 1 ? 's' : ''} in thread</div>
+            {thread.map((email, i) => (
+                <ThreadMessage key={email.id} email={email} isLast={i === thread.length - 1} />
+            ))}
+        </div>
+    );
 }
 
 const mockSchedule = calendarEvents.map(evt => ({
@@ -201,16 +202,57 @@ function Dashboard() {
 
     // Chat Interface State
     const [chatInput, setChatInput] = useState('');
-    const [messages, setMessages] = useState([
-        { id: 1, role: 'system', text: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
-        { id: 2, role: 'system', text: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
-    ]);
-    const [isTyping, setIsTyping] = useState(false);
 
-    // 'inbox', 'drafting', 'schedule', 'crm', 'invoice_gen', 'todos', 'empty'
     const [activeWorkspace, setActiveWorkspace] = useState('empty');
-
     const messagesEndRef = useRef(null);
+
+    // CopilotKit Hooks
+    const { visibleMessages, appendMessage, isLoading } = useCopilotChat();
+
+    // CopilotKit: Provide context to the AI
+    useCopilotReadable({
+        description: "The dashboard view currently visible to the user.",
+        value: activeWorkspace,
+    });
+
+    useCopilotReadable({
+        description: "The currently selected email snippet in the inbox.",
+        value: selectedEmail ? selectedEmail.snippet : "No email selected",
+    });
+
+    // CopilotKit: Define actions the AI can take
+    useCopilotAction({
+        name: "switchWorkspaceView",
+        description: "Switches the dashboard workspace to the specified view.",
+        parameters: [
+            {
+                name: "view",
+                type: "string",
+                description: "The view to switch to. Valid options: 'inbox', 'drafting', 'schedule', 'crm', 'invoice_gen'",
+                required: true,
+            }
+        ],
+        handler: ({ view }) => {
+            setActiveWorkspace(view);
+            return `Successfully switched workspace to ${view}.`;
+        },
+    });
+
+    useCopilotAction({
+        name: "draftEmail",
+        description: "Prepares an email draft for the user to review.",
+        parameters: [
+            {
+                name: "content",
+                type: "string",
+                description: "The content of the drafted email.",
+            }
+        ],
+        handler: ({ content }) => {
+            setActiveWorkspace('drafting');
+            return "Email draft is now visible in the active workspace.";
+        },
+    });
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -218,7 +260,7 @@ function Dashboard() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [visibleMessages]);
 
     // Reactive inbox — re-render when scenario adds emails
     useEffect(() => {
@@ -267,97 +309,12 @@ function Dashboard() {
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!chatInput.trim()) return;
+        if (!chatInput.trim() || isLoading) return;
 
-        const userMessage = chatInput;
-        setMessages(prev => [...prev, { id: Date.now(), role: 'user', text: userMessage }]);
+        // Send message to CopilotKit/OpenClaw
+        appendMessage(chatInput);
         setChatInput('');
-        setIsTyping(true);
 
-        // Mock OpenClaw Agent workflow response logic
-        setTimeout(() => {
-            let aiResponse = "";
-            let actionToTake = null;
-            let emailToSelect = null;
-
-            const msgLower = userMessage.toLowerCase();
-
-            const intents = [
-                // Dashboard / Home (highest priority — navigates back to daily brief)
-                {
-                    patterns: ['show me the dashboard', 'show my dashboard', 'show dashboard', 'open dashboard', 'go to dashboard', 'go home', 'go back', 'home', 'dashboard', 'daily brief', 'brief'],
-                    workspace: 'empty',
-                    response: "Here's your dashboard. Let me know if there's anything you'd like to dive into.",
-                },
-                // Explicit "show my ___" and "open ___" phrases
-                {
-                    patterns: ['show my inbox', 'show inbox', 'open inbox', 'my inbox', 'check inbox', 'check email', 'check mail'],
-                    workspace: 'inbox',
-                    response: "Here's your inbox \u2014 I've sorted emails by priority for you.",
-                },
-                {
-                    patterns: ['show my calendar', 'show calendar', 'open calendar', 'my calendar', 'show my schedule', 'show schedule', 'my schedule', 'check schedule'],
-                    workspace: 'schedule',
-                    response: "Here is your schedule for today based on your deep work preferences. I've also tentatively proposed a 1:00 PM sync with Sarah.",
-                },
-                {
-                    patterns: ['show my invoice', 'show invoices', 'open invoice', 'my invoices', 'show my billing', 'check invoices'],
-                    workspace: 'invoice_gen',
-                    response: "Here are your invoices. You can review drafts or check sent ones.",
-                },
-                {
-                    patterns: ['show my tasks', 'show tasks', 'show my todos', 'my tasks', 'open tasks', 'check tasks'],
-                    workspace: 'todos',
-                    response: `You have ${mockTasks.length} tasks today. The highest priority is prepping for the Riviera Rebrand call at 1 PM. I've organized them by priority for you.`,
-                },
-                {
-                    patterns: ['show my clients', 'show clients', 'open crm', 'my clients', 'client pipeline', 'check clients'],
-                    workspace: 'crm',
-                    response: "Here is an overview of your active clients. It looks like Mark Tech LLC has an active issue (overdue invoice) that we should address today.",
-                },
-                // Action-specific phrases
-                {
-                    patterns: ['generate invoice', 'create invoice', 'bill alex', 'invoice alex'],
-                    workspace: 'invoice_gen',
-                    response: "I've drafted an invoice for Alex Chen at StartupX based on the tracked hours for the 'Q3 Design Project'. Please review and approve to send it.",
-                },
-                {
-                    patterns: ['sarah', 'draft', 'reply'],
-                    workspace: 'drafting',
-                    response: "I've pulled up Sarah's thread and drafted a quick follow-up response based on your previous history.",
-                    selectEmail: mockEmails[0],
-                },
-                // Broad keyword fallbacks (lower priority)
-                { patterns: ['inbox', 'emails', 'mail'], workspace: 'inbox', response: "Here's your inbox." },
-                { patterns: ['calendar', 'schedule', 'meet'], workspace: 'schedule', response: "Here is your schedule for today." },
-                { patterns: ['invoice', 'billing', 'pay'], workspace: 'invoice_gen', response: "Opening your invoices..." },
-                { patterns: ['client', 'crm', 'follow up', 'pipeline'], workspace: 'crm', response: "Here are your clients." },
-                { patterns: ['todo', 'task', 'to-do', 'to do'], workspace: 'todos', response: "Here are your tasks." },
-                { patterns: ['email'], workspace: 'drafting', response: "I've pulled up the thread.", selectEmail: mockEmails[0] },
-            ];
-
-            let matched = false;
-            for (const intent of intents) {
-                if (intent.patterns.some(p => msgLower.includes(p))) {
-                    aiResponse = intent.response;
-                    actionToTake = intent.workspace;
-                    if (intent.selectEmail) emailToSelect = intent.selectEmail;
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched) {
-                aiResponse = "I can certainly help with that. Would you like me to check your Inbox, Schedule, or Client Pipeline first?";
-                actionToTake = activeWorkspace;
-            }
-
-            setIsTyping(false);
-            setMessages(prev => [...prev, { id: Date.now() + 1, role: 'system', text: aiResponse }]);
-
-            if (emailToSelect) setSelectedEmail(emailToSelect);
-            if (actionToTake) setActiveWorkspace(actionToTake);
-
-        }, 1500);
     };
 
     // Connection State — auto-connect in demo mode
@@ -423,20 +380,34 @@ function Dashboard() {
                 </div>
 
                 <div className="chat-messages">
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`message-wrapper ${msg.role}`}>
-                            <div className="message-avatar">
-                                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-                            </div>
-                            <div className="message-bubble">
-                                <div className="message-sender-label">
-                                    {msg.role === 'system' ? 'ChiefClaw 🦞' : msg.role === 'notification' ? '[System]' : 'You'}
+                    {visibleMessages.map((msg, idx) => {
+                        const role = msg.role === 'user' ? 'user' : (msg.role === 'notification' ? 'system notification' : 'system');
+                        let text = '';
+
+                        // Handle different CopilotKit message structures
+                        if (typeof msg.content === 'string' && msg.content.trim()) text = msg.content;
+                        else if (typeof msg === 'string') text = msg;
+                        else if (msg.text) text = msg.text;
+                        else if (msg.isTextMessage?.()) text = msg.content;
+
+                        // Skip empty messages (e.g. tool execution events)
+                        if (!text) return null;
+
+                        return (
+                            <div key={msg.id || idx} className={`message-wrapper ${role}`}>
+                                <div className="message-avatar">
+                                    {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                                 </div>
-                                {msg.text}
+                                <div className="message-bubble">
+                                    <div className="message-sender-label">
+                                        {msg.role === 'system' ? 'ChiefClaw 🦞' : msg.role === 'notification' ? '[System]' : 'You'}
+                                    </div>
+                                    {text}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                    {isTyping && (
+                        );
+                    })}
+                    {isLoading && (
                         <div className="message-wrapper system">
                             <div className="message-avatar"><Bot size={16} /></div>
                             <div className="message-bubble typing-indicator">
@@ -465,479 +436,491 @@ function Dashboard() {
             </aside>
 
             {/* Dynamic Workspace (Right Panel) */}
-            <main className="dashboard-content">
+            < main className="dashboard-content" >
 
                 {/* VIEW 1 & 2: INBOX + EMAIL PREVIEW (side-by-side) */}
-                {['inbox', 'drafting'].includes(activeWorkspace) && (
-                    <div className={`inbox-workspace ${activeWorkspace === 'drafting' ? 'has-preview' : ''}`}>
-                        <section className="email-list page">
-                            <div className="list-header">
-                                <h3>Triage Inbox</h3>
-                                <div className="filter-tabs">
-                                    <span className="tab active">Priority</span>
-                                    <span className="tab">All</span>
+                {
+                    ['inbox', 'drafting'].includes(activeWorkspace) && (
+                        <div className={`inbox-workspace ${activeWorkspace === 'drafting' ? 'has-preview' : ''}`}>
+                            <section className="email-list page">
+                                <div className="list-header">
+                                    <h3>Triage Inbox</h3>
+                                    <div className="filter-tabs">
+                                        <span className="tab active">Priority</span>
+                                        <span className="tab">All</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="emails">
-                                {mockEmails.map(email => (
-                                    <div
-                                        key={email.id}
-                                        className={`email-item ${selectedEmail?.id === email.id ? 'selected' : ''}`}
-                                        onClick={() => {
-                                            setSelectedEmail(email);
-                                            setDetailTab('message');
-                                            setActiveWorkspace('drafting');
-                                        }}
-                                    >
-                                        <div className="email-item-header">
-                                            <span className="sender">{email.sender}</span>
-                                            <span className="time">{email.time}</span>
+                                <div className="emails">
+                                    {mockEmails.map(email => (
+                                        <div
+                                            key={email.id}
+                                            className={`email-item ${selectedEmail?.id === email.id ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                setSelectedEmail(email);
+                                                setDetailTab('message');
+                                                setActiveWorkspace('drafting');
+                                            }}
+                                        >
+                                            <div className="email-item-header">
+                                                <span className="sender">{email.sender}</span>
+                                                <span className="time">{email.time}</span>
+                                            </div>
+                                            <div className="subject">{email.subject}</div>
+                                            <div className="snippet">{email.snippet}</div>
+                                            <div className="email-tags">
+                                                <span className={`tag ${email.priority}`}>{email.tag}</span>
+                                            </div>
                                         </div>
-                                        <div className="subject">{email.subject}</div>
-                                        <div className="snippet">{email.snippet}</div>
-                                        <div className="email-tags">
-                                            <span className={`tag ${email.priority}`}>{email.tag}</span>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {activeWorkspace === 'drafting' && selectedEmail && (
+                                <section className="email-detail page animate-fade-in">
+                                    <div className="detail-header-v2">
+                                        <div className="detail-header-top">
+                                            <div className="detail-subject-v2">{selectedEmail.subject}</div>
+                                            <span className={`tag ${selectedEmail.priority}`}>{selectedEmail.tag}</span>
+                                        </div>
+                                        <div className="detail-sender-row">
+                                            <div className="detail-sender-avatar">{getInitials(selectedEmail.sender)}</div>
+                                            <div className="detail-sender-info">
+                                                <span className="detail-sender-name">{selectedEmail.sender}</span>
+                                                <span className="detail-sender-email">{selectedEmail.senderEmail}</span>
+                                            </div>
+                                            <span className="detail-timestamp">{formatDate(selectedEmail.timestamp)} at {selectedEmail.time}</span>
+                                        </div>
+                                        {selectedEmail.clawSummary && (
+                                            <div className="detail-claw-summary">
+                                                <Sparkles size={13} />
+                                                <span>{selectedEmail.clawSummary}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="detail-tab-bar">
+                                        <button
+                                            className={`detail-tab ${detailTab === 'message' ? 'active' : ''}`}
+                                            onClick={() => setDetailTab('message')}
+                                        >
+                                            <Mail size={14} />
+                                            <span>Message</span>
+                                        </button>
+                                        {selectedEmail.threadId && getThread(selectedEmail.threadId).length > 1 && (
+                                            <button
+                                                className={`detail-tab ${detailTab === 'thread' ? 'active' : ''}`}
+                                                onClick={() => setDetailTab('thread')}
+                                            >
+                                                <MessageSquare size={14} />
+                                                <span>Thread</span>
+                                                <span className="detail-tab-count">{getThread(selectedEmail.threadId).length}</span>
+                                            </button>
+                                        )}
+                                        {selectedEmail.requiresReply !== false && (
+                                            <button
+                                                className={`detail-tab ${detailTab === 'reply' ? 'active' : ''}`}
+                                                onClick={() => setDetailTab('reply')}
+                                            >
+                                                <PenLine size={14} />
+                                                <span>AI Reply</span>
+                                                <span className="detail-tab-dot"></span>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {detailTab === 'message' && (
+                                        <div className="detail-message-area">
+                                            <div className="message-body">
+                                                {selectedEmail.body.split('\n\n').map((para, i) => (
+                                                    <p key={i}>{para}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {detailTab === 'thread' && (
+                                        <div className="detail-thread-area">
+                                            <ThreadView threadId={selectedEmail.threadId} />
+                                        </div>
+                                    )}
+
+                                    {detailTab === 'reply' && selectedEmail.requiresReply !== false && (
+                                        <div className="detail-reply-area">
+                                            <div className="ai-copilot-panel-v2">
+                                                <div className="copilot-header-v2">
+                                                    <div className="copilot-title-v2">
+                                                        <span className="status-indicator"></span>
+                                                        <span>AI Draft Ready</span>
+                                                        <span className="confidence-badge"><Zap size={10} /> 95%</span>
+                                                    </div>
+                                                    <div className="workflow-badge">
+                                                        {WORKFLOW_LABELS[selectedEmail.category] || 'Follow-up'}
+                                                    </div>
+                                                </div>
+
+                                                <div className="tone-selector">
+                                                    {['Professional', 'Warm', 'Casual'].map(tone => (
+                                                        <button
+                                                            key={tone}
+                                                            className={`tone-pill ${tone === 'Warm' ? 'active' : ''}`}
+                                                            onClick={() => { }}
+                                                        >{tone}</button>
+                                                    ))}
+                                                </div>
+
+                                                <div className="draft-editor-v2">
+                                                    <textarea
+                                                        className="draft-textarea"
+                                                        key={selectedEmail.id}
+                                                        defaultValue={getDraftForEmail(selectedEmail)}
+                                                    />
+                                                </div>
+
+                                                <div className="copilot-context-bar">
+                                                    <Sparkles size={12} />
+                                                    <span>Context: </span>
+                                                    {(CONTEXT_SIGNALS[selectedEmail.clawAction] || ["Maya's voice"]).map((signal, i) => (
+                                                        <span key={i} className="context-chip">{signal}</span>
+                                                    ))}
+                                                </div>
+
+                                                <div className="copilot-actions-v2">
+                                                    <button className="btn btn-ghost" onClick={() => { }}>
+                                                        <RefreshCw size={14} /> Regenerate
+                                                    </button>
+                                                    <div className="action-buttons">
+                                                        <button className="btn btn-outline">Edit Draft</button>
+                                                        <button className="btn btn-primary" onClick={() => {
+                                                            const draftText = document.querySelector('.draft-textarea')?.value || '';
+                                                            sendEmail({
+                                                                direction: 'outbound',
+                                                                to: { name: selectedEmail.sender, email: selectedEmail.senderEmail || '' },
+                                                                subject: `Re: ${selectedEmail.subject}`,
+                                                                body: draftText,
+                                                                threadId: selectedEmail.threadId || null,
+                                                                generatedBy: 'openclaw',
+                                                                approvedBy: freelancer.name,
+                                                            });
+                                                            setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Email sent to ${selectedEmail.sender} and thread archived.` }]);
+                                                            setActiveWorkspace('inbox');
+                                                        }}><CheckCircle2 size={16} /> Approve & Send</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </section>
+                            )}
+                        </div>
+                    )
+                }
+
+                {/* VIEW 3: SCHEDULE */}
+                {
+                    activeWorkspace === 'schedule' && (
+                        <section className="workspace-view page animate-fade-in">
+                            <div className="workspace-header">
+                                <h2><Calendar size={24} className="text-primary inline-icon" /> Smart Schedule</h2>
+                                <p className="text-secondary">AI protected deep work and proposed meetings.</p>
+                            </div>
+                            <div className="schedule-list">
+                                {mockSchedule.map(item => (
+                                    <div key={item.id} className={`schedule-item ${item.type} ${item.status || ''}`}>
+                                        <div className="time">{item.time}</div>
+                                        <div className="details">
+                                            <h4>{item.title}</h4>
+                                            {item.status === 'proposed' && <span className="tag warning">Proposed by AI</span>}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </section>
-
-                        {activeWorkspace === 'drafting' && selectedEmail && (
-                            <section className="email-detail page animate-fade-in">
-                                <div className="detail-header-v2">
-                                    <div className="detail-header-top">
-                                        <div className="detail-subject-v2">{selectedEmail.subject}</div>
-                                        <span className={`tag ${selectedEmail.priority}`}>{selectedEmail.tag}</span>
-                                    </div>
-                                    <div className="detail-sender-row">
-                                        <div className="detail-sender-avatar">{getInitials(selectedEmail.sender)}</div>
-                                        <div className="detail-sender-info">
-                                            <span className="detail-sender-name">{selectedEmail.sender}</span>
-                                            <span className="detail-sender-email">{selectedEmail.senderEmail}</span>
-                                        </div>
-                                        <span className="detail-timestamp">{formatDate(selectedEmail.timestamp)} at {selectedEmail.time}</span>
-                                    </div>
-                                    {selectedEmail.clawSummary && (
-                                        <div className="detail-claw-summary">
-                                            <Sparkles size={13} />
-                                            <span>{selectedEmail.clawSummary}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="detail-tab-bar">
-                                    <button
-                                        className={`detail-tab ${detailTab === 'message' ? 'active' : ''}`}
-                                        onClick={() => setDetailTab('message')}
-                                    >
-                                        <Mail size={14} />
-                                        <span>Message</span>
-                                    </button>
-                                    {selectedEmail.threadId && getThread(selectedEmail.threadId).length > 1 && (
-                                        <button
-                                            className={`detail-tab ${detailTab === 'thread' ? 'active' : ''}`}
-                                            onClick={() => setDetailTab('thread')}
-                                        >
-                                            <MessageSquare size={14} />
-                                            <span>Thread</span>
-                                            <span className="detail-tab-count">{getThread(selectedEmail.threadId).length}</span>
-                                        </button>
-                                    )}
-                                    {selectedEmail.requiresReply !== false && (
-                                        <button
-                                            className={`detail-tab ${detailTab === 'reply' ? 'active' : ''}`}
-                                            onClick={() => setDetailTab('reply')}
-                                        >
-                                            <PenLine size={14} />
-                                            <span>AI Reply</span>
-                                            <span className="detail-tab-dot"></span>
-                                        </button>
-                                    )}
-                                </div>
-
-                                {detailTab === 'message' && (
-                                    <div className="detail-message-area">
-                                        <div className="message-body">
-                                            {selectedEmail.body.split('\n\n').map((para, i) => (
-                                                <p key={i}>{para}</p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {detailTab === 'thread' && (
-                                    <div className="detail-thread-area">
-                                        <ThreadView threadId={selectedEmail.threadId} />
-                                    </div>
-                                )}
-
-                                {detailTab === 'reply' && selectedEmail.requiresReply !== false && (
-                                    <div className="detail-reply-area">
-                                        <div className="ai-copilot-panel-v2">
-                                            <div className="copilot-header-v2">
-                                                <div className="copilot-title-v2">
-                                                    <span className="status-indicator"></span>
-                                                    <span>AI Draft Ready</span>
-                                                    <span className="confidence-badge"><Zap size={10} /> 95%</span>
-                                                </div>
-                                                <div className="workflow-badge">
-                                                    {WORKFLOW_LABELS[selectedEmail.category] || 'Follow-up'}
-                                                </div>
-                                            </div>
-
-                                            <div className="tone-selector">
-                                                {['Professional', 'Warm', 'Casual'].map(tone => (
-                                                    <button
-                                                        key={tone}
-                                                        className={`tone-pill ${tone === 'Warm' ? 'active' : ''}`}
-                                                        onClick={() => {}}
-                                                    >{tone}</button>
-                                                ))}
-                                            </div>
-
-                                            <div className="draft-editor-v2">
-                                                <textarea
-                                                    className="draft-textarea"
-                                                    key={selectedEmail.id}
-                                                    defaultValue={getDraftForEmail(selectedEmail)}
-                                                />
-                                            </div>
-
-                                            <div className="copilot-context-bar">
-                                                <Sparkles size={12} />
-                                                <span>Context: </span>
-                                                {(CONTEXT_SIGNALS[selectedEmail.clawAction] || ["Maya's voice"]).map((signal, i) => (
-                                                    <span key={i} className="context-chip">{signal}</span>
-                                                ))}
-                                            </div>
-
-                                            <div className="copilot-actions-v2">
-                                                <button className="btn btn-ghost" onClick={() => {}}>
-                                                    <RefreshCw size={14} /> Regenerate
-                                                </button>
-                                                <div className="action-buttons">
-                                                    <button className="btn btn-outline">Edit Draft</button>
-                                                    <button className="btn btn-primary" onClick={() => {
-                                                        const draftText = document.querySelector('.draft-textarea')?.value || '';
-                                                        sendEmail({
-                                                            direction: 'outbound',
-                                                            to: { name: selectedEmail.sender, email: selectedEmail.senderEmail || '' },
-                                                            subject: `Re: ${selectedEmail.subject}`,
-                                                            body: draftText,
-                                                            threadId: selectedEmail.threadId || null,
-                                                            generatedBy: 'openclaw',
-                                                            approvedBy: freelancer.name,
-                                                        });
-                                                        setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Email sent to ${selectedEmail.sender} and thread archived.` }]);
-                                                        setActiveWorkspace('inbox');
-                                                    }}><CheckCircle2 size={16} /> Approve & Send</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </section>
-                        )}
-                    </div>
-                )}
-
-                {/* VIEW 3: SCHEDULE */}
-                {activeWorkspace === 'schedule' && (
-                    <section className="workspace-view page animate-fade-in">
-                        <div className="workspace-header">
-                            <h2><Calendar size={24} className="text-primary inline-icon" /> Smart Schedule</h2>
-                            <p className="text-secondary">AI protected deep work and proposed meetings.</p>
-                        </div>
-                        <div className="schedule-list">
-                            {mockSchedule.map(item => (
-                                <div key={item.id} className={`schedule-item ${item.type} ${item.status || ''}`}>
-                                    <div className="time">{item.time}</div>
-                                    <div className="details">
-                                        <h4>{item.title}</h4>
-                                        {item.status === 'proposed' && <span className="tag warning">Proposed by AI</span>}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                    )
+                }
 
                 {/* VIEW 4: CRM / CLIENT FOLLOW UP */}
-                {activeWorkspace === 'crm' && (
-                    <section className="workspace-view page animate-fade-in">
-                        <div className="workspace-header">
-                            <h2><Users size={24} className="text-primary inline-icon" /> Client Pipeline</h2>
-                            <p className="text-secondary">Proactive tracking of relationships and active projects.</p>
-                        </div>
-                        <div className="crm-list">
-                            {mockClients.map(client => (
-                                <div key={client.id} className="crm-card">
-                                    <div className="crm-card-header">
-                                        <h3>{client.name}</h3>
-                                        <span className={`health-dot ${client.health}`}></span>
+                {
+                    activeWorkspace === 'crm' && (
+                        <section className="workspace-view page animate-fade-in">
+                            <div className="workspace-header">
+                                <h2><Users size={24} className="text-primary inline-icon" /> Client Pipeline</h2>
+                                <p className="text-secondary">Proactive tracking of relationships and active projects.</p>
+                            </div>
+                            <div className="crm-list">
+                                {mockClients.map(client => (
+                                    <div key={client.id} className="crm-card">
+                                        <div className="crm-card-header">
+                                            <h3>{client.name}</h3>
+                                            <span className={`health-dot ${client.health}`}></span>
+                                        </div>
+                                        <div className="crm-meta">{client.company}</div>
+                                        <div className="crm-status">
+                                            <span className="text-secondary">Status:</span> {client.status}
+                                        </div>
+                                        <div className="crm-contact">
+                                            <Clock size={14} /> Last Contact: {client.lastContact}
+                                        </div>
                                     </div>
-                                    <div className="crm-meta">{client.company}</div>
-                                    <div className="crm-status">
-                                        <span className="text-secondary">Status:</span> {client.status}
-                                    </div>
-                                    <div className="crm-contact">
-                                        <Clock size={14} /> Last Contact: {client.lastContact}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                                ))}
+                            </div>
+                        </section>
+                    )
+                }
 
                 {/* VIEW 6: TODO LIST */}
-                {activeWorkspace === 'todos' && (
-                    <section className="workspace-view page animate-fade-in todo-view">
-                        <div className="todo-header">
-                            <div>
-                                <h2><ListTodo size={24} className="text-primary inline-icon" /> Today's Tasks</h2>
-                                <p className="text-secondary">{todoItems.filter(t => t.status === 'done').length} of {todoItems.length} completed</p>
-                            </div>
-                            <div className="todo-progress-wrap">
-                                <div className="todo-progress-bar">
-                                    <div
-                                        className="todo-progress-fill"
-                                        style={{ width: `${(todoItems.filter(t => t.status === 'done').length / todoItems.length) * 100}%` }}
-                                    />
+                {
+                    activeWorkspace === 'todos' && (
+                        <section className="workspace-view page animate-fade-in todo-view">
+                            <div className="todo-header">
+                                <div>
+                                    <h2><ListTodo size={24} className="text-primary inline-icon" /> Today's Tasks</h2>
+                                    <p className="text-secondary">{todoItems.filter(t => t.status === 'done').length} of {todoItems.length} completed</p>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="todo-list">
-                            {todoItems
-                                .sort((a, b) => {
-                                    if (a.status === 'done' && b.status !== 'done') return 1;
-                                    if (a.status !== 'done' && b.status === 'done') return -1;
-                                    const prio = { high: 0, medium: 1, low: 2 };
-                                    return (prio[a.priority] ?? 2) - (prio[b.priority] ?? 2);
-                                })
-                                .map(task => (
-                                <div key={task.id} className={`todo-item ${task.status === 'done' ? 'done' : ''}`}>
-                                    <button className="todo-check" onClick={() => toggleTodo(task.id)}>
-                                        {task.status === 'done'
-                                            ? <CheckCircle2 size={20} className="text-success" />
-                                            : <Circle size={20} />
-                                        }
-                                    </button>
-                                    <div className="todo-content">
-                                        <div className="todo-title-row">
-                                            <span className="todo-title">{task.title}</span>
-                                            <span className={`tag ${task.priority}`}>{task.priority}</span>
-                                        </div>
-                                        <p className="todo-desc">{task.description}</p>
-                                        <div className="todo-meta">
-                                            <span className="todo-project">{task.project}</span>
-                                            <span className="todo-due"><Clock size={12} /> {task.dueDate}</span>
-                                            {task.source && <span className="todo-source"><ArrowUpRight size={12} /> {task.source}</span>}
-                                        </div>
+                                <div className="todo-progress-wrap">
+                                    <div className="todo-progress-bar">
+                                        <div
+                                            className="todo-progress-fill"
+                                            style={{ width: `${(todoItems.filter(t => t.status === 'done').length / todoItems.length) * 100}%` }}
+                                        />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                            </div>
+
+                            <div className="todo-list">
+                                {todoItems
+                                    .sort((a, b) => {
+                                        if (a.status === 'done' && b.status !== 'done') return 1;
+                                        if (a.status !== 'done' && b.status === 'done') return -1;
+                                        const prio = { high: 0, medium: 1, low: 2 };
+                                        return (prio[a.priority] ?? 2) - (prio[b.priority] ?? 2);
+                                    })
+                                    .map(task => (
+                                        <div key={task.id} className={`todo-item ${task.status === 'done' ? 'done' : ''}`}>
+                                            <button className="todo-check" onClick={() => toggleTodo(task.id)}>
+                                                {task.status === 'done'
+                                                    ? <CheckCircle2 size={20} className="text-success" />
+                                                    : <Circle size={20} />
+                                                }
+                                            </button>
+                                            <div className="todo-content">
+                                                <div className="todo-title-row">
+                                                    <span className="todo-title">{task.title}</span>
+                                                    <span className={`tag ${task.priority}`}>{task.priority}</span>
+                                                </div>
+                                                <p className="todo-desc">{task.description}</p>
+                                                <div className="todo-meta">
+                                                    <span className="todo-project">{task.project}</span>
+                                                    <span className="todo-due"><Clock size={12} /> {task.dueDate}</span>
+                                                    {task.source && <span className="todo-source"><ArrowUpRight size={12} /> {task.source}</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        </section>
+                    )
+                }
 
                 {/* VIEW 5: INVOICE GENERATION */}
-                {activeWorkspace === 'invoice_gen' && (
-                    <div className="inbox-workspace has-preview animate-fade-in">
-                        <section className="invoice-sidebar page">
-                            <div className="list-header">
-                                <h3>Invoices</h3>
-                                <div className="filter-tabs">
-                                    <span className="tab active">Draft</span>
-                                    <span className="tab">Sent</span>
+                {
+                    activeWorkspace === 'invoice_gen' && (
+                        <div className="inbox-workspace has-preview animate-fade-in">
+                            <section className="invoice-sidebar page">
+                                <div className="list-header">
+                                    <h3>Invoices</h3>
+                                    <div className="filter-tabs">
+                                        <span className="tab active">Draft</span>
+                                        <span className="tab">Sent</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="invoice-list-items">
-                                <div className="invoice-list-item selected">
-                                    <div className="invoice-list-item-header">
-                                        <span className="sender">{mockInvoiceDetails.client}</span>
-                                        <span className="time">{mockInvoiceDetails.date}</span>
-                                    </div>
-                                    <div className="subject">{mockInvoiceDetails.project}</div>
-                                    <div className="snippet">
-                                        {mockInvoiceDetails.items.length} line items • ${mockInvoiceDetails.items.reduce((acc, curr) => acc + (curr.hours * curr.rate), 0).toLocaleString()} total
-                                    </div>
-                                    <div className="email-tags">
-                                        <span className="tag high">Due {mockInvoiceDetails.dueDate}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className="invoice-detail page">
-                            <div className="detail-header invoice-detail-header">
-                                <div>
-                                    <div className="detail-subject">Invoice — {mockInvoiceDetails.project}</div>
-                                    <div className="detail-meta">For: <span className="text-primary">{mockInvoiceDetails.client}</span> • {mockInvoiceDetails.contact}</div>
-                                </div>
-                                <div className="invoice-actions">
-                                    <button className="btn btn-outline"><Download size={16} /> PDF</button>
-                                    <button className="btn btn-primary" onClick={() => {
-                                        setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Invoice successfully sent to ${mockInvoiceDetails.contact} at ${mockInvoiceDetails.client}.` }]);
-                                        setActiveWorkspace('empty');
-                                    }}><Send size={16} /> Approve & Send</button>
-                                </div>
-                            </div>
-
-                            <div className="invoice-document">
-                                <div className="invoice-meta">
-                                    <div className="bill-to">
-                                        <div className="meta-label">Billed To</div>
-                                        <div className="client-name">{mockInvoiceDetails.client}</div>
-                                        <div className="client-contact">{mockInvoiceDetails.contact}</div>
-                                    </div>
-                                    <div className="invoice-dates">
-                                        <div className="date-group">
-                                            <span className="meta-label">Date of Issue</span>
-                                            <span>{mockInvoiceDetails.date}</span>
+                                <div className="invoice-list-items">
+                                    <div className="invoice-list-item selected">
+                                        <div className="invoice-list-item-header">
+                                            <span className="sender">{mockInvoiceDetails.client}</span>
+                                            <span className="time">{mockInvoiceDetails.date}</span>
                                         </div>
-                                        <div className="date-group">
-                                            <span className="meta-label">Due Date</span>
-                                            <span>{mockInvoiceDetails.dueDate}</span>
+                                        <div className="subject">{mockInvoiceDetails.project}</div>
+                                        <div className="snippet">
+                                            {mockInvoiceDetails.items.length} line items • ${mockInvoiceDetails.items.reduce((acc, curr) => acc + (curr.hours * curr.rate), 0).toLocaleString()} total
+                                        </div>
+                                        <div className="email-tags">
+                                            <span className="tag high">Due {mockInvoiceDetails.dueDate}</span>
                                         </div>
                                     </div>
                                 </div>
+                            </section>
 
-                                <table className="invoice-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Description</th>
-                                            <th className="text-right">Hours</th>
-                                            <th className="text-right">Rate</th>
-                                            <th className="text-right">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {mockInvoiceDetails.items.map((item, idx) => (
-                                            <tr key={idx}>
-                                                <td>{item.description}</td>
-                                                <td className="text-right">{item.hours}</td>
-                                                <td className="text-right">${item.rate}/hr</td>
-                                                <td className="text-right">${item.hours * item.rate}</td>
+                            <section className="invoice-detail page">
+                                <div className="detail-header invoice-detail-header">
+                                    <div>
+                                        <div className="detail-subject">Invoice — {mockInvoiceDetails.project}</div>
+                                        <div className="detail-meta">For: <span className="text-primary">{mockInvoiceDetails.client}</span> • {mockInvoiceDetails.contact}</div>
+                                    </div>
+                                    <div className="invoice-actions">
+                                        <button className="btn btn-outline"><Download size={16} /> PDF</button>
+                                        <button className="btn btn-primary" onClick={() => {
+                                            setMessages(prev => [...prev, { id: Date.now(), role: 'notification', text: `Invoice successfully sent to ${mockInvoiceDetails.contact} at ${mockInvoiceDetails.client}.` }]);
+                                            setActiveWorkspace('empty');
+                                        }}><Send size={16} /> Approve & Send</button>
+                                    </div>
+                                </div>
+
+                                <div className="invoice-document">
+                                    <div className="invoice-meta">
+                                        <div className="bill-to">
+                                            <div className="meta-label">Billed To</div>
+                                            <div className="client-name">{mockInvoiceDetails.client}</div>
+                                            <div className="client-contact">{mockInvoiceDetails.contact}</div>
+                                        </div>
+                                        <div className="invoice-dates">
+                                            <div className="date-group">
+                                                <span className="meta-label">Date of Issue</span>
+                                                <span>{mockInvoiceDetails.date}</span>
+                                            </div>
+                                            <div className="date-group">
+                                                <span className="meta-label">Due Date</span>
+                                                <span>{mockInvoiceDetails.dueDate}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <table className="invoice-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Description</th>
+                                                <th className="text-right">Hours</th>
+                                                <th className="text-right">Rate</th>
+                                                <th className="text-right">Amount</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colSpan="3" className="text-right font-semibold">Total Due</td>
-                                            <td className="text-right font-bold text-primary text-xl">
-                                                ${mockInvoiceDetails.items.reduce((acc, curr) => acc + (curr.hours * curr.rate), 0).toLocaleString()}
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
-                )}
+                                        </thead>
+                                        <tbody>
+                                            {mockInvoiceDetails.items.map((item, idx) => (
+                                                <tr key={idx}>
+                                                    <td>{item.description}</td>
+                                                    <td className="text-right">{item.hours}</td>
+                                                    <td className="text-right">${item.rate}/hr</td>
+                                                    <td className="text-right">${item.hours * item.rate}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colSpan="3" className="text-right font-semibold">Total Due</td>
+                                                <td className="text-right font-bold text-primary text-xl">
+                                                    ${mockInvoiceDetails.items.reduce((acc, curr) => acc + (curr.hours * curr.rate), 0).toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                    )
+                }
 
                 {/* DEFAULT: DAILY BRIEF */}
-                {activeWorkspace === 'empty' && (
-                    <section className="daily-brief animate-fade-in">
-                        {/* Brief Header + Stats */}
-                        <div className="brief-header page">
-                            <div className="brief-greeting">
-                                <Sparkles size={20} className="text-primary" />
-                                <h2>{dailyBrief.greeting}</h2>
-                            </div>
-                            <div className="brief-stats">
-                                <div className="stat-pill" onClick={() => setActiveWorkspace('inbox')}>
-                                    <Mail size={15} />
-                                    <span className="stat-value">{dailyBrief.stats.pendingEmails}</span>
-                                    <span className="stat-label">Emails</span>
+                {
+                    activeWorkspace === 'empty' && (
+                        <section className="daily-brief animate-fade-in">
+                            {/* Brief Header + Stats */}
+                            <div className="brief-header page">
+                                <div className="brief-greeting">
+                                    <Sparkles size={20} className="text-primary" />
+                                    <h2>{dailyBrief.greeting}</h2>
                                 </div>
-                                <div className="stat-pill" onClick={() => setActiveWorkspace('todos')}>
-                                    <ListTodo size={15} />
-                                    <span className="stat-value">{dailyBrief.stats.tasksDueToday}</span>
-                                    <span className="stat-label">Tasks Today</span>
-                                </div>
-                                <div className="stat-pill">
-                                    <DollarSign size={15} />
-                                    <span className="stat-value">${(dailyBrief.stats.revenueThisMonth / 1000).toFixed(1)}k</span>
-                                    <span className="stat-label">This Month</span>
-                                </div>
-                                <div className="stat-pill" onClick={() => setActiveWorkspace('crm')}>
-                                    <Users size={15} />
-                                    <span className="stat-value">{dailyBrief.stats.activeClients}</span>
-                                    <span className="stat-label">Clients</span>
-                                </div>
-                            </div>
-                            <p className="brief-summary">{dailyBrief.summary.split('\n\n')[0]}</p>
-                        </div>
-
-                        <div className="brief-grid">
-                            {/* Emails Preview */}
-                            <div className="brief-card page">
-                                <div className="brief-card-header" onClick={() => setActiveWorkspace('inbox')}>
-                                    <div className="brief-card-title">
-                                        <Mail size={16} className="text-primary" />
-                                        <h3>Emails Needing Attention</h3>
+                                <div className="brief-stats">
+                                    <div className="stat-pill" onClick={() => setActiveWorkspace('inbox')}>
+                                        <Mail size={15} />
+                                        <span className="stat-value">{dailyBrief.stats.pendingEmails}</span>
+                                        <span className="stat-label">Emails</span>
                                     </div>
-                                    <span className="brief-card-count">{dailyBrief.sections[1].items.length}</span>
-                                </div>
-                                <div className="brief-card-items">
-                                    {dailyBrief.sections[1].items.map((item, i) => (
-                                        <div key={i} className="brief-item" onClick={() => setActiveWorkspace('inbox')}>
-                                            <div className="brief-item-row">
-                                                <span className={`brief-status-dot ${item.status}`}></span>
-                                                <span className="brief-item-label">{item.label}</span>
-                                            </div>
-                                            <p className="brief-item-detail">{item.detail}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Invoices Preview */}
-                            <div className="brief-card page">
-                                <div className="brief-card-header">
-                                    <div className="brief-card-title">
-                                        <DollarSign size={16} className="text-primary" />
-                                        <h3>Invoices & Payments</h3>
+                                    <div className="stat-pill" onClick={() => setActiveWorkspace('todos')}>
+                                        <ListTodo size={15} />
+                                        <span className="stat-value">{dailyBrief.stats.tasksDueToday}</span>
+                                        <span className="stat-label">Tasks Today</span>
                                     </div>
-                                    <span className="brief-card-count">{dailyBrief.sections[2].items.length}</span>
+                                    <div className="stat-pill">
+                                        <DollarSign size={15} />
+                                        <span className="stat-value">${(dailyBrief.stats.revenueThisMonth / 1000).toFixed(1)}k</span>
+                                        <span className="stat-label">This Month</span>
+                                    </div>
+                                    <div className="stat-pill" onClick={() => setActiveWorkspace('crm')}>
+                                        <Users size={15} />
+                                        <span className="stat-value">{dailyBrief.stats.activeClients}</span>
+                                        <span className="stat-label">Clients</span>
+                                    </div>
                                 </div>
-                                <div className="brief-card-items">
-                                    {dailyBrief.sections[2].items.map((item, i) => (
-                                        <div key={i} className="brief-item">
-                                            <div className="brief-item-row">
-                                                <span className={`brief-status-dot ${item.status}`}></span>
-                                                <span className="brief-item-label">{item.label}</span>
-                                            </div>
-                                            <p className="brief-item-detail">{item.detail}</p>
+                                <p className="brief-summary">{dailyBrief.summary.split('\n\n')[0]}</p>
+                            </div>
+
+                            <div className="brief-grid">
+                                {/* Emails Preview */}
+                                <div className="brief-card page">
+                                    <div className="brief-card-header" onClick={() => setActiveWorkspace('inbox')}>
+                                        <div className="brief-card-title">
+                                            <Mail size={16} className="text-primary" />
+                                            <h3>Emails Needing Attention</h3>
                                         </div>
-                                    ))}
+                                        <span className="brief-card-count">{dailyBrief.sections[1].items.length}</span>
+                                    </div>
+                                    <div className="brief-card-items">
+                                        {dailyBrief.sections[1].items.map((item, i) => (
+                                            <div key={i} className="brief-item" onClick={() => setActiveWorkspace('inbox')}>
+                                                <div className="brief-item-row">
+                                                    <span className={`brief-status-dot ${item.status}`}></span>
+                                                    <span className="brief-item-label">{item.label}</span>
+                                                </div>
+                                                <p className="brief-item-detail">{item.detail}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Invoices Preview */}
+                                <div className="brief-card page">
+                                    <div className="brief-card-header">
+                                        <div className="brief-card-title">
+                                            <DollarSign size={16} className="text-primary" />
+                                            <h3>Invoices & Payments</h3>
+                                        </div>
+                                        <span className="brief-card-count">{dailyBrief.sections[2].items.length}</span>
+                                    </div>
+                                    <div className="brief-card-items">
+                                        {dailyBrief.sections[2].items.map((item, i) => (
+                                            <div key={i} className="brief-item">
+                                                <div className="brief-item-row">
+                                                    <span className={`brief-status-dot ${item.status}`}></span>
+                                                    <span className="brief-item-label">{item.label}</span>
+                                                </div>
+                                                <p className="brief-item-detail">{item.detail}</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* AI Notes */}
-                        {dailyBrief.clawNotes.length > 0 && (
-                            <div className="brief-notes page">
-                                <div className="brief-card-title">
-                                    <Sparkles size={16} className="text-primary" />
-                                    <h3>AI Notes</h3>
+                            {/* AI Notes */}
+                            {dailyBrief.clawNotes.length > 0 && (
+                                <div className="brief-notes page">
+                                    <div className="brief-card-title">
+                                        <Sparkles size={16} className="text-primary" />
+                                        <h3>AI Notes</h3>
+                                    </div>
+                                    <ul className="brief-notes-list">
+                                        {dailyBrief.clawNotes.map((note, i) => (
+                                            <li key={i}>{note}</li>
+                                        ))}
+                                    </ul>
                                 </div>
-                                <ul className="brief-notes-list">
-                                    {dailyBrief.clawNotes.map((note, i) => (
-                                        <li key={i}>{note}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </section>
-                )}
+                            )}
+                        </section>
+                    )
+                }
 
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
 

@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@copilotkit/react-core": "^1.51.4",
+    "@copilotkit/react-ui": "^1.51.4",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
