@@ -124,4 +124,11 @@ The future of freelancing isn't hiring an assistant. It's having an AI that thin
 
 ---
 
+## UI Prototype
+
+- Landing UI: [`./ui/index.html`](./ui/index.html)
+- Open directly in a browser, or run `python3 -m http.server` from the repo root and visit `http://localhost:8000/ui/`.
+
+---
+
 *Built with OpenClaw · Wordware · AG-UI · CopilotKit*
