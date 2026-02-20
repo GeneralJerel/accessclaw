@@ -180,7 +180,7 @@ const mockInvoiceDetails = {
     ]
 };
 
-function Dashboard({ deviceToken, setDeviceToken }) {
+function DashboardInner() {
     const location = useLocation();
     const isDemoMode = new URLSearchParams(location.search).get('chiefclaw') === 'true';
 
@@ -206,7 +206,7 @@ function Dashboard({ deviceToken, setDeviceToken }) {
     const [activeWorkspace, setActiveWorkspace] = useState('empty');
     const messagesEndRef = useRef(null);
 
-    // CopilotKit Hooks
+    // CopilotKit Hooks MUST be in a component wrapped by CopilotKit
     const { visibleMessages, appendMessage, isLoading } = useCopilotChat();
 
     // CopilotKit: Provide context to the AI
@@ -317,50 +317,6 @@ function Dashboard({ deviceToken, setDeviceToken }) {
 
     };
 
-    // Connection State
-    const [password, setPassword] = useState('');
-
-    const handleConnect = (e) => {
-        e.preventDefault();
-        // Just mock the connection for now
-        if (password) {
-            setDeviceToken(password);
-        }
-    };
-
-    if (!deviceToken) {
-        return (
-            <div className="container stack" style={{ margin: '8rem auto', maxWidth: '600px', textAlign: 'center' }}>
-                <div className="page stack" style={{ padding: '3rem 2rem' }}>
-                    <div style={{ color: 'var(--accent)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
-                        <Sparkles size={48} />
-                    </div>
-                    <h2>Connect your ChiefClaw 🦞</h2>
-                    <p className="subtitle">Enter your OpenClaw credentials to connect your workspace.</p>
-
-                    <form onSubmit={handleConnect} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', maxWidth: '300px', margin: '2rem auto 0' }}>
-                        <input
-                            type="password"
-                            placeholder="Enter Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius-md)',
-                                border: '1px solid var(--line)',
-                                background: 'var(--bg)',
-                                color: 'var(--text)'
-                            }}
-                            required
-                        />
-                        <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                            Connect to OpenClaw
-                        </button>
-                    </form>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="dashboard-split">
@@ -424,9 +380,9 @@ function Dashboard({ deviceToken, setDeviceToken }) {
                             placeholder="E.g. 'Show my schedule' or 'Check invoices'"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
-                            disabled={isTyping}
+                            disabled={isLoading}
                         />
-                        <button type="submit" className={`send-btn ${chatInput.trim() ? 'active' : ''}`} disabled={!chatInput.trim() || isTyping}>
+                        <button type="submit" className={`send-btn ${chatInput.trim() ? 'active' : ''}`} disabled={!chatInput.trim() || isLoading}>
                             <Send size={18} />
                         </button>
                     </form>
@@ -921,6 +877,54 @@ function Dashboard({ deviceToken, setDeviceToken }) {
             </main >
         </div >
     );
+}
+
+function Dashboard({ deviceToken, setDeviceToken }) {
+    // Connection State
+    const [password, setPassword] = useState('');
+
+    const handleConnect = (e) => {
+        e.preventDefault();
+        if (password) {
+            setDeviceToken(password);
+        }
+    };
+
+    if (!deviceToken) {
+        return (
+            <div className="container stack" style={{ margin: '8rem auto', maxWidth: '600px', textAlign: 'center' }}>
+                <div className="page stack" style={{ padding: '3rem 2rem' }}>
+                    <div style={{ color: 'var(--accent)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                        <Sparkles size={48} />
+                    </div>
+                    <h2>Connect your ChiefClaw 🦞</h2>
+                    <p className="subtitle">Enter your OpenClaw credentials to connect your workspace.</p>
+
+                    <form onSubmit={handleConnect} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', maxWidth: '300px', margin: '2rem auto 0' }}>
+                        <input
+                            type="password"
+                            placeholder="Enter Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: 'var(--radius-md)',
+                                border: '1px solid var(--line)',
+                                background: 'var(--bg)',
+                                color: 'var(--text)'
+                            }}
+                            required
+                        />
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                            Connect to OpenClaw
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
+    return <DashboardInner />;
 }
 
 export default Dashboard;

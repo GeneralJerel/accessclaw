@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Scenario from './pages/Scenario'
 import Setup from './pages/Setup'
+import ErrorBoundary from './components/ErrorBoundary';
 
 function NavLink({ to, children }) {
   const location = useLocation();
@@ -16,31 +17,40 @@ function NavLink({ to, children }) {
 function App() {
   const [deviceToken, setDeviceToken] = useState('');
   return (
-    <CopilotKit
-      runtimeUrl="http://localhost:18789/v1/clawg-ui"
-      headers={{
-        Authorization: `Bearer ${deviceToken}`
-      }}
-    >
-      <Router>
-        <div className="container">
-          <header className="site-header">
-            <Link to="/" className="logo">ChiefClaw 🦞</Link>
-            <nav className="tabs">
-              <NavLink to="/">Home</NavLink>
-              <NavLink to="/dashboard">Dashboard</NavLink>
-            </nav>
-          </header>
+    <Router>
+      <div className="container">
+        <header className="site-header">
+          <Link to="/" className="logo">ChiefClaw 🦞</Link>
+          <nav className="tabs">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+          </nav>
+        </header>
 
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/scenario" element={<Scenario />} />
-            <Route path="/dashboard" element={<Dashboard deviceToken={deviceToken} setDeviceToken={setDeviceToken} />} />
-            <Route path="/setup" element={<Setup />} />
-          </Routes>
-        </div>
-      </Router>
-    </CopilotKit>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/scenario" element={<Scenario />} />
+          <Route path="/dashboard" element={
+            deviceToken ? (
+              <ErrorBoundary onReset={() => setDeviceToken('')}>
+                <CopilotKit
+                  runtimeUrl="http://localhost:18789/v1/clawg-ui"
+                  agent="openclaw"
+                  headers={{
+                    Authorization: `Bearer ${deviceToken}`
+                  }}
+                >
+                  <Dashboard deviceToken={deviceToken} setDeviceToken={setDeviceToken} />
+                </CopilotKit>
+              </ErrorBoundary>
+            ) : (
+              <Dashboard deviceToken={deviceToken} setDeviceToken={setDeviceToken} />
+            )
+          } />
+          <Route path="/setup" element={<Setup />} />
+        </Routes>
+      </div>
+    </Router>
   )
 }
 
