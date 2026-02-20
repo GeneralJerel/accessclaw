@@ -124,6 +124,21 @@ ChiefClaw gives every freelancer an AI agent — **OpenClaw** — that autonomou
 
 ---
 
+## Connecting to OpenClaw
+
+To use the Dashboard with the live OpenClaw agent (AI chat and tools):
+
+1. **Run OpenClaw** with the clawg-ui plugin: `openclaw plugins install @contextableai/clawg-ui` then `openclaw gateway run` (default port **18789**).
+2. **Get a device token** via pairing:  
+   `curl -X POST http://localhost:18789/v1/clawg-ui -H "Content-Type: application/json" -d '{}'`  
+   From the 403 response, copy the `token` and `pairingCode`. On the gateway machine run:  
+   `openclaw pairing approve clawg-ui <pairingCode>`
+3. In ChiefClaw **Dashboard**, paste the **device token** and click **Connect to OpenClaw**.
+
+If you see "Connection Error", ensure OpenClaw is running, clawg-ui is enabled, the device is approved, and the gateway is on port 18789. Full steps: **docs/engineering/4_OPENCLAW_CONNECTION.md**.
+
+---
+
 ## Getting Started
 
 ```bash

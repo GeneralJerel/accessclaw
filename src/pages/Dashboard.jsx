@@ -180,7 +180,14 @@ const mockInvoiceDetails = {
     ]
 };
 
-function DashboardInner() {
+function CopilotBridge(props) {
+    const { visibleMessages: _visibleMessages, appendMessage, isLoading } = useCopilotChat();
+    const visibleMessages = _visibleMessages ?? [];
+    return <DashboardInner {...props} visibleMessages={visibleMessages} appendMessage={appendMessage} isLoading={isLoading} copilotConnected={true} />;
+}
+
+
+function DashboardInner({ visibleMessages = [], appendMessage = () => {}, isLoading = false, copilotConnected = false }) {
     const location = useLocation();
     const isDemoMode = new URLSearchParams(location.search).get('chiefclaw') === 'true';
 
@@ -206,53 +213,7 @@ function DashboardInner() {
     const [activeWorkspace, setActiveWorkspace] = useState('empty');
     const messagesEndRef = useRef(null);
 
-    // CopilotKit Hooks MUST be in a component wrapped by CopilotKit
-    const { visibleMessages, appendMessage, isLoading } = useCopilotChat();
-
-    // CopilotKit: Provide context to the AI
-    useCopilotReadable({
-        description: "The dashboard view currently visible to the user.",
-        value: activeWorkspace,
-    });
-
-    useCopilotReadable({
-        description: "The currently selected email snippet in the inbox.",
-        value: selectedEmail ? selectedEmail.snippet : "No email selected",
-    });
-
-    // CopilotKit: Define actions the AI can take
-    useCopilotAction({
-        name: "switchWorkspaceView",
-        description: "Switches the dashboard workspace to the specified view.",
-        parameters: [
-            {
-                name: "view",
-                type: "string",
-                description: "The view to switch to. Valid options: 'inbox', 'drafting', 'schedule', 'crm', 'invoice_gen'",
-                required: true,
-            }
-        ],
-        handler: ({ view }) => {
-            setActiveWorkspace(view);
-            return `Successfully switched workspace to ${view}.`;
-        },
-    });
-
-    useCopilotAction({
-        name: "draftEmail",
-        description: "Prepares an email draft for the user to review.",
-        parameters: [
-            {
-                name: "content",
-                type: "string",
-                description: "The content of the drafted email.",
-            }
-        ],
-        handler: ({ content }) => {
-            setActiveWorkspace('drafting');
-            return "Email draft is now visible in the active workspace.";
-        },
-    });
+    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -898,12 +859,12 @@ function Dashboard({ deviceToken, setDeviceToken }) {
                         <Sparkles size={48} />
                     </div>
                     <h2>Connect your ChiefClaw 🦞</h2>
-                    <p className="subtitle">Enter your OpenClaw credentials to connect your workspace.</p>
+                    <p className="subtitle">Enter your OpenClaw device token from the pairing flow to connect your workspace.</p>
 
                     <form onSubmit={handleConnect} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', maxWidth: '300px', margin: '2rem auto 0' }}>
                         <input
                             type="password"
-                            placeholder="Enter Password"
+                            placeholder="Device token (from pairing)"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             style={{
@@ -919,12 +880,16 @@ function Dashboard({ deviceToken, setDeviceToken }) {
                             Connect to OpenClaw
                         </button>
                     </form>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '1rem' }}>
+                        Need a token? Run the pairing flow: <code style={{ fontSize: '0.75rem' }}>curl -X POST http://localhost:18789/v1/clawg-ui -H "Content-Type: application/json" -d '{}'</code>, then approve with <code style={{ fontSize: '0.75rem' }}>openclaw pairing approve clawg-ui &lt;pairingCode&gt;</code>. See docs/engineering/4_OPENCLAW_CONNECTION.md.
+                    </p>
                 </div>
             </div>
         );
     }
 
-    return <DashboardInner />;
+    return <CopilotBridge />;
 }
 
+export { DashboardInner };
 export default Dashboard;

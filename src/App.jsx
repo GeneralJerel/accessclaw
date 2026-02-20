@@ -4,7 +4,7 @@ import { useState } from "react";
 import "@copilotkit/react-ui/styles.css";
 import './App.css'
 import Home from './pages/Home'
-import Dashboard from './pages/Dashboard'
+import Dashboard, { DashboardInner } from './pages/Dashboard'
 import Scenario from './pages/Scenario'
 import Setup from './pages/Setup'
 import ErrorBoundary from './components/ErrorBoundary';
@@ -15,7 +15,7 @@ function NavLink({ to, children }) {
 }
 
 function App() {
-  const [deviceToken, setDeviceToken] = useState('');
+  const [deviceToken, setDeviceToken] = useState(import.meta.env.VITE_OPENCLAW_DEVICE_TOKEN ?? '');
   return (
     <Router>
       <div className="container">
@@ -32,9 +32,12 @@ function App() {
           <Route path="/scenario" element={<Scenario />} />
           <Route path="/dashboard" element={
             deviceToken ? (
-              <ErrorBoundary onReset={() => setDeviceToken('')}>
+              <ErrorBoundary
+                onReset={() => setDeviceToken('')}
+                fallback={<DashboardInner />}
+              >
                 <CopilotKit
-                  runtimeUrl="http://localhost:18789/v1/clawg-ui"
+                  runtimeUrl="/v1/clawg-ui"
                   agent="openclaw"
                   headers={{
                     Authorization: `Bearer ${deviceToken}`
