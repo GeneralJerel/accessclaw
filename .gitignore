@@ -5,9 +5,12 @@ node_modules/
 dist/
 *.tgz
 
-# App
-app/node_modules/
-app/dist/
+# App directories
+/app/
+/app-2/
+
+# References
+/references/
 
 # Environment
 .env
