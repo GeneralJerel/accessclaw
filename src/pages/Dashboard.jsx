@@ -2,36 +2,55 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 import { Mail, Calendar, FileText, Settings, Search, CheckCircle2, AlertCircle, RefreshCw, Send, User, Bot, Sparkles, Clock, Users, DollarSign, Download } from 'lucide-react';
 
-// Mock Data
-const mockEmails = [
-    { id: 1, sender: 'Sarah Jenkins', subject: 'Checking in on our Proposal', snippet: 'Just following up to see if you had time to review...', time: '10:42 AM', tag: 'Follow-up', priority: 'high' },
-    { id: 2, sender: 'Mark Tech LLC', subject: 'Invoice #042 Overdue', snippet: 'We noticed invoice #042 is now 5 days past due...', time: 'Yesterday', tag: 'Invoice', priority: 'high' },
-    { id: 3, sender: 'Alex Chen', subject: 'Q3 Design Project Scope', snippet: 'Attached is the brief for the upcoming UI revamp...', time: 'Yesterday', tag: 'New Lead', priority: 'medium' },
-    { id: 4, sender: 'Emily Rodriguez', subject: 'Re: Next week availability', snippet: 'Does Tuesday at 2 PM work for our sync?', time: 'Mon', tag: 'Scheduling', priority: 'low' },
-];
+import { emails as scenarioEmails } from '../../mock-data/scenario/emails';
+import { calendarEvents } from '../../mock-data/scenario/calendar';
+import { clients as scenarioClients } from '../../mock-data/scenario/clients';
+import { dailyBrief } from '../../mock-data/scenario/dailyBrief';
 
-const mockSchedule = [
-    { id: 1, title: 'Deep Work Block', time: '10:00 AM - 12:00 PM', type: 'block' },
-    { id: 2, title: 'Sync with Sarah', time: '1:00 PM - 1:30 PM', type: 'meeting', status: 'proposed' },
-    { id: 3, title: 'Design Review: NextGen UI', time: '3:00 PM - 4:00 PM', type: 'meeting' },
-];
+function formatTime(iso) {
+  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
 
-const mockClients = [
-    { id: 1, name: 'Sarah Jenkins', company: 'Acme Corp', status: 'Proposal Sent', lastContact: '2 days ago', health: 'good' },
-    { id: 2, name: 'Mark Tech LLC', company: 'Mark Tech', status: 'Active Board', lastContact: '5 days ago', health: 'warning' },
-    { id: 3, name: 'Alex Chen', company: 'StartupX', status: 'New Lead', lastContact: 'Yesterday', health: 'good' },
-];
+const mockEmails = scenarioEmails
+    .filter(e => e.direction === 'inbound')
+    .map(e => ({
+        id: e.id,
+        sender: e.from.name,
+        subject: e.subject,
+        snippet: e.clawSummary,
+        body: e.body,
+        time: formatTime(e.receivedAt),
+        tag: e.category === 'new-lead' ? 'New Lead' : e.category === 'revision-request' ? 'Revision' : e.category === 'client-feedback' ? 'Feedback' : e.category === 'payment-notification' ? 'Payment' : 'Info',
+        priority: e.urgency,
+    }));
+
+const mockSchedule = calendarEvents.map(evt => ({
+    id: evt.id,
+    title: evt.title,
+    time: formatTime(evt.datetime) + (evt.duration > 30 ? ` - ${formatTime(new Date(new Date(evt.datetime).getTime() + evt.duration * 60000).toISOString())}` : ''),
+    type: evt.type === 'deep-work' ? 'block' : 'meeting',
+    status: evt.source === 'openclaw' && evt.type === 'client-call' ? 'proposed' : undefined,
+}));
+
+const mockClients = scenarioClients.map(c => ({
+    id: c.id,
+    name: c.name,
+    company: c.company,
+    status: c.status === 'new-lead' ? 'New Lead' : c.status === 'active' ? 'Active' : c.status === 'follow-up-needed' ? 'Follow-up Needed' : c.status,
+    lastContact: new Date(c.lastContact).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    health: c.status === 'follow-up-needed' ? 'warning' : 'good',
+}));
 
 const mockInvoiceDetails = {
-    client: 'StartupX',
-    contact: 'Alex Chen',
-    project: 'Q3 Design Project Scope',
-    date: 'Oct 24, 2023',
-    dueDate: 'Nov 24, 2023',
+    client: 'Archway Financial',
+    contact: 'Marcus Webb',
+    project: 'Brand Guidelines Package',
+    date: 'Feb 10, 2026',
+    dueDate: 'Feb 25, 2026',
     items: [
-        { description: 'UX Research & Strategy', hours: 15, rate: 120 },
-        { description: 'UI Design (Wireframes & Hi-Fi)', hours: 40, rate: 120 },
-        { description: 'Prototyping & Handoff', hours: 10, rate: 120 }
+        { description: 'Brand Strategy & Positioning', hours: 12, rate: 150 },
+        { description: 'Logo & Visual Identity Design', hours: 24, rate: 150 },
+        { description: 'Brand Guidelines Document', hours: 8, rate: 150 }
     ]
 };
 
@@ -222,84 +241,88 @@ function Dashboard() {
             {/* Dynamic Workspace (Right Panel) */}
             <main className="dashboard-content">
 
-                {/* VIEW 1: INBOX */}
-                <section className={`email-list page ${['inbox', 'drafting'].includes(activeWorkspace) ? 'active-view' : ''}`}>
-                    <div className="list-header">
-                        <h3>Triage Inbox</h3>
-                        <div className="filter-tabs">
-                            <span className="tab active">Priority</span>
-                            <span className="tab">All</span>
-                        </div>
+                {/* VIEW 1 & 2: INBOX + EMAIL PREVIEW (side-by-side) */}
+                {['inbox', 'drafting'].includes(activeWorkspace) && (
+                    <div className={`inbox-workspace ${activeWorkspace === 'drafting' ? 'has-preview' : ''}`}>
+                        <section className="email-list page">
+                            <div className="list-header">
+                                <h3>Triage Inbox</h3>
+                                <div className="filter-tabs">
+                                    <span className="tab active">Priority</span>
+                                    <span className="tab">All</span>
+                                </div>
+                            </div>
+
+                            <div className="emails">
+                                {mockEmails.map(email => (
+                                    <div
+                                        key={email.id}
+                                        className={`email-item ${selectedEmail.id === email.id ? 'selected' : ''}`}
+                                        onClick={() => {
+                                            setSelectedEmail(email);
+                                            setActiveWorkspace('drafting');
+                                        }}
+                                    >
+                                        <div className="email-item-header">
+                                            <span className="sender">{email.sender}</span>
+                                            <span className="time">{email.time}</span>
+                                        </div>
+                                        <div className="subject">{email.subject}</div>
+                                        <div className="snippet">{email.snippet}</div>
+                                        <div className="email-tags">
+                                            <span className={`tag ${email.priority}`}>{email.tag}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        {activeWorkspace === 'drafting' && (
+                            <section className="email-detail page animate-fade-in">
+                                <div className="detail-header">
+                                    <div className="detail-subject">{selectedEmail.subject}</div>
+                                    <div className="detail-meta">From: <span className="text-primary">{selectedEmail.sender}</span> • {selectedEmail.time}</div>
+                                </div>
+
+                                <div className="thread-body">
+                                    {selectedEmail.body.split('\n\n').map((para, i) => (
+                                        <p key={i}>{para}</p>
+                                    ))}
+                                </div>
+
+                                <div className="ai-copilot-panel">
+                                    <div className="copilot-header">
+                                        <div className="copilot-title">
+                                            <span className="status-indicator"></span>
+                                            <span>AI Drafting Response</span>
+                                        </div>
+                                        <div className="workflow-badge">Workflow: Follow-up</div>
+                                    </div>
+
+                                    <div className="draft-editor">
+                                        <textarea
+                                            className="draft-textarea"
+                                            defaultValue={`Hi ${selectedEmail.sender.split(' ')[0]},\n\nThanks for following up! I've reviewed the proposal and everything looks great. Could you send over the final contract so we can get started?\n\nBest,\nYour Name`}
+                                        />
+                                    </div>
+
+                                    <div className="copilot-actions">
+                                        <div className="context-note">
+                                            <AlertCircle size={14} color="var(--warning)" />
+                                            <span>Context applied from chat history.</span>
+                                        </div>
+                                        <div className="action-buttons">
+                                            <button className="btn btn-outline">Edit Draft</button>
+                                            <button className="btn btn-primary" onClick={() => {
+                                                setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: 'Email successfully sent and thread archived.' }]);
+                                                setActiveWorkspace('inbox');
+                                            }}><CheckCircle2 size={16} /> Approve & Send</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
                     </div>
-
-                    <div className="emails">
-                        {mockEmails.map(email => (
-                            <div
-                                key={email.id}
-                                className={`email-item ${selectedEmail.id === email.id ? 'selected' : ''}`}
-                                onClick={() => {
-                                    setSelectedEmail(email);
-                                    setActiveWorkspace('drafting');
-                                }}
-                            >
-                                <div className="email-item-header">
-                                    <span className="sender">{email.sender}</span>
-                                    <span className="time">{email.time}</span>
-                                </div>
-                                <div className="subject">{email.subject}</div>
-                                <div className="snippet">{email.snippet}</div>
-                                <div className="email-tags">
-                                    <span className={`tag ${email.priority}`}>{email.tag}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* VIEW 2: DRAFTING */}
-                {activeWorkspace === 'drafting' && (
-                    <section className="email-detail page animate-fade-in">
-                        <div className="detail-header">
-                            <div className="detail-subject">{selectedEmail.subject}</div>
-                            <div className="detail-meta">From: <span className="text-primary">{selectedEmail.sender}</span> • {selectedEmail.time}</div>
-                        </div>
-
-                        <div className="thread-body">
-                            <p>{selectedEmail.snippet}</p>
-                            <p>I hope your week is off to a great start. I'm writing to follow up on the proposal sent last Tuesday. Since we're looking at a Q3 start, I'd love to get this wrapped up so I can lock in your dates.</p>
-                        </div>
-
-                        <div className="ai-copilot-panel">
-                            <div className="copilot-header">
-                                <div className="copilot-title">
-                                    <span className="status-indicator"></span>
-                                    <span>AI Drafting Response</span>
-                                </div>
-                                <div className="workflow-badge">Workflow: Follow-up</div>
-                            </div>
-
-                            <div className="draft-editor">
-                                <textarea
-                                    className="draft-textarea"
-                                    defaultValue={`Hi ${selectedEmail.sender.split(' ')[0]},\n\nThanks for following up! I've reviewed the proposal and everything looks great. Could you send over the final contract so we can get started?\n\nBest,\nYour Name`}
-                                />
-                            </div>
-
-                            <div className="copilot-actions">
-                                <div className="context-note">
-                                    <AlertCircle size={14} color="var(--warning)" />
-                                    <span>Context applied from chat history.</span>
-                                </div>
-                                <div className="action-buttons">
-                                    <button className="btn btn-outline">Edit Draft</button>
-                                    <button className="btn btn-primary" onClick={() => {
-                                        setMessages(prev => [...prev, { id: Date.now(), role: 'system', text: 'Email successfully sent and thread archived.' }]);
-                                        setActiveWorkspace('inbox');
-                                    }}><CheckCircle2 size={16} /> Approve & Send</button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
                 )}
 
                 {/* VIEW 3: SCHEDULE */}
@@ -418,14 +441,100 @@ function Dashboard() {
                     </section>
                 )}
 
-                {/* EMPTY STATE */}
+                {/* DEFAULT: DAILY BRIEF */}
                 {activeWorkspace === 'empty' && (
-                    <section className="empty-workspace page">
-                        <div className="empty-state">
-                            <div className="empty-icon"><Sparkles size={48} color="rgba(255,255,255,0.1)" /></div>
-                            <h3>Workspace Ready</h3>
-                            <p className="text-secondary">Ask your Assistant in the chat to pull up emails, draft responses, view schedule, or check clients.</p>
+                    <section className="daily-brief animate-fade-in">
+                        {/* Brief Header + Stats */}
+                        <div className="brief-header page">
+                            <div className="brief-greeting">
+                                <Sparkles size={20} className="text-primary" />
+                                <h2>{dailyBrief.greeting}</h2>
+                            </div>
+                            <div className="brief-stats">
+                                <div className="stat-pill" onClick={() => setActiveWorkspace('inbox')}>
+                                    <Mail size={15} />
+                                    <span className="stat-value">{dailyBrief.stats.pendingEmails}</span>
+                                    <span className="stat-label">Emails</span>
+                                </div>
+                                <div className="stat-pill" onClick={() => setActiveWorkspace('schedule')}>
+                                    <Calendar size={15} />
+                                    <span className="stat-value">{dailyBrief.stats.tasksDueToday}</span>
+                                    <span className="stat-label">Tasks Today</span>
+                                </div>
+                                <div className="stat-pill">
+                                    <DollarSign size={15} />
+                                    <span className="stat-value">${(dailyBrief.stats.revenueThisMonth / 1000).toFixed(1)}k</span>
+                                    <span className="stat-label">This Month</span>
+                                </div>
+                                <div className="stat-pill" onClick={() => setActiveWorkspace('crm')}>
+                                    <Users size={15} />
+                                    <span className="stat-value">{dailyBrief.stats.activeClients}</span>
+                                    <span className="stat-label">Clients</span>
+                                </div>
+                            </div>
+                            <p className="brief-summary">{dailyBrief.summary.split('\n\n')[0]}</p>
                         </div>
+
+                        <div className="brief-grid">
+                            {/* Emails Preview */}
+                            <div className="brief-card page">
+                                <div className="brief-card-header" onClick={() => setActiveWorkspace('inbox')}>
+                                    <div className="brief-card-title">
+                                        <Mail size={16} className="text-primary" />
+                                        <h3>Emails Needing Attention</h3>
+                                    </div>
+                                    <span className="brief-card-count">{dailyBrief.sections[1].items.length}</span>
+                                </div>
+                                <div className="brief-card-items">
+                                    {dailyBrief.sections[1].items.map((item, i) => (
+                                        <div key={i} className="brief-item" onClick={() => setActiveWorkspace('inbox')}>
+                                            <div className="brief-item-row">
+                                                <span className={`brief-status-dot ${item.status}`}></span>
+                                                <span className="brief-item-label">{item.label}</span>
+                                            </div>
+                                            <p className="brief-item-detail">{item.detail}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Invoices Preview */}
+                            <div className="brief-card page">
+                                <div className="brief-card-header">
+                                    <div className="brief-card-title">
+                                        <DollarSign size={16} className="text-primary" />
+                                        <h3>Invoices & Payments</h3>
+                                    </div>
+                                    <span className="brief-card-count">{dailyBrief.sections[2].items.length}</span>
+                                </div>
+                                <div className="brief-card-items">
+                                    {dailyBrief.sections[2].items.map((item, i) => (
+                                        <div key={i} className="brief-item">
+                                            <div className="brief-item-row">
+                                                <span className={`brief-status-dot ${item.status}`}></span>
+                                                <span className="brief-item-label">{item.label}</span>
+                                            </div>
+                                            <p className="brief-item-detail">{item.detail}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* AI Notes */}
+                        {dailyBrief.clawNotes.length > 0 && (
+                            <div className="brief-notes page">
+                                <div className="brief-card-title">
+                                    <Sparkles size={16} className="text-primary" />
+                                    <h3>AI Notes</h3>
+                                </div>
+                                <ul className="brief-notes-list">
+                                    {dailyBrief.clawNotes.map((note, i) => (
+                                        <li key={i}>{note}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </section>
                 )}
 

@@ -36,7 +36,7 @@ body {
 }
 
 .container {
-  width: min(980px, 100%);
+  width: min(1120px, 100%);
   margin: 0 auto;
 }
 

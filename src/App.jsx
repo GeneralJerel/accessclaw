@@ -1,7 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './App.css'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
+import Scenario from './pages/Scenario'
+
+function NavLink({ to, children }) {
+  const location = useLocation();
+  return <Link to={to} className={location.pathname === to ? 'active' : ''}>{children}</Link>;
+}
 
 function App() {
   return (
@@ -10,13 +16,14 @@ function App() {
         <header className="site-header">
           <Link to="/" className="logo">AI Chief of Staff</Link>
           <nav className="tabs">
-            <Link to="/" className={window.location.pathname === '/' ? 'active' : ''}>Home</Link>
-            <Link to="/dashboard" className={window.location.pathname === '/dashboard' ? 'active' : ''}>Dashboard</Link>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/dashboard">Dashboard</NavLink>
           </nav>
         </header>
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/scenario" element={<Scenario />} />
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>

@@ -67,7 +67,7 @@ hack-openclaw/
 │   ├── product/                    # Product documentation
 │   ├── engineering/                # Technical documentation
 │   └── ai/                        # AI & prompt documentation
-├── app/
+├── app/                            # V1 — Light glass-morphism dashboard
 │   ├── package.json
 │   ├── vite.config.ts
 │   ├── tsconfig.json
@@ -87,12 +87,38 @@ hack-openclaw/
 │       │   └── organisms/          # DailyBriefCard, ClientListCard, EmailListCard, TodoListCard, ChatSidebar
 │       ├── routes/
 │       │   ├── __root.tsx          # Root layout (ChatSidebar overlay)
-│       │   └── index.tsx           # Dashboard page (BOND-inspired: tabs, filters, ActionCard grid)
+│       │   └── index.tsx           # Dashboard page (tabs, filters, ActionCard grid)
 │       ├── lib/
 │       │   ├── glass.ts            # Shared glass style utilities
 │       │   └── agent.ts            # AG-UI stub agent configuration
 │       └── types/
 │           └── index.ts            # TypeScript type definitions
+├── app-2/                          # V2 — Dark executive dashboard
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tsconfig.json
+│   ├── index.html
+│   ├── data/                       # Rich mock data
+│   │   ├── dailyBriefing.ts        # Briefing + stats + priority actions
+│   │   ├── calendarEvents.ts       # Calendar with prep notes + attendees
+│   │   ├── emails.ts               # Emails with AI summaries + draft replies
+│   │   ├── inbox.ts                # Notification feed
+│   │   └── initiatives.ts          # Key initiatives with progress tracking
+│   └── src/
+│       ├── main.tsx
+│       ├── index.css               # Dark theme design system
+│       ├── routeTree.gen.ts
+│       ├── components/
+│       │   ├── atoms/              # Badge, StatusDot, ProgressBar, IconButton
+│       │   ├── molecules/          # StatChip, EventCard, InitiativeRow, EmailRow, PriorityActionRow, NotificationRow
+│       │   └── organisms/          # DailyBriefPanel, CalendarTimeline, InitiativesPanel, EmailPanel, InboxSidebar
+│       ├── routes/
+│       │   ├── __root.tsx
+│       │   └── index.tsx           # 3-column layout: nav | content | inbox sidebar
+│       ├── lib/
+│       │   └── glass.ts            # Dark glass style utilities
+│       └── types/
+│           └── index.ts
 ```
 
 ---
@@ -121,4 +147,7 @@ hack-openclaw/
 
 ## Status
 
-🚧 Phase 1 — Dashboard UI rebuilt with BOND-inspired layout: tabbed navigation (Briefing/Clients/Emails/To-Dos), priority filter pills, ActionCard grid with CTA buttons, warm accent palette. Chat sidebar overlay functional. AG-UI + CopilotKit packages installed and ready for backend integration.
+🚧 Phase 1 — Two frontend variants under active development:
+
+- **`/app`** (V1): Light glass-morphism dashboard with tabbed navigation, ActionCard grid, warm accent palette, ChatSidebar overlay. AG-UI + CopilotKit packages installed.
+- **`/app-2`** (V2): Dark executive dashboard inspired by Ambient/Briefing UX patterns. Three-column layout (slim nav | main content | inbox sidebar), daily briefing with priority actions, calendar timeline with expandable prep notes, initiative tracking with progress bars, email triage with AI summaries and draft replies. Runs on port 5176.
