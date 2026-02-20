@@ -16,7 +16,7 @@ function Footer() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--line)', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div className="logo">AI Chief of Staff</div>
+                    <div className="logo">ChiefClaw 🦞</div>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
                         <a href="#" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '0.85rem' }}>Terms</a>
                         <a href="#" style={{ color: 'var(--muted)', textDecoration: 'none', fontSize: '0.85rem' }}>Privacy</a>
@@ -24,7 +24,7 @@ function Footer() {
                     </div>
                 </div>
                 <p style={{ color: 'var(--muted)', fontSize: '0.8rem', marginTop: '1rem', textAlign: 'left' }}>
-                    © {new Date().getFullYear()} AI Chief of Staff. All rights reserved.
+                    © {new Date().getFullYear()} ChiefClaw 🦞. All rights reserved.
                 </p>
             </div>
         </footer>

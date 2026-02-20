@@ -38,7 +38,7 @@ function Features() {
         <section className="container" style={{ margin: '4rem auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <h2>Everything you need, <span style={{ color: 'var(--accent)' }}>handled.</span></h2>
-                <p className="subtitle" style={{ margin: '0 auto' }}>Stop context-switching. Let your AI Chief of Staff handle the busywork.</p>
+                <p className="subtitle" style={{ margin: '0 auto' }}>Stop context-switching. Let your ChiefClaw 🦞 handle the busywork.</p>
             </div>
 
             <div className="feature-grid">

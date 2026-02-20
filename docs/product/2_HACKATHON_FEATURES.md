@@ -1,4 +1,4 @@
-# Hackathon Feature List — AI Chief of Staff (Claw)
+# Hackathon Feature List — ChiefClaw 🦞 (Claw)
 
 > Last updated: 2026-02-19
 

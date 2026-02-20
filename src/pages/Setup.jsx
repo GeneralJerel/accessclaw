@@ -55,7 +55,7 @@ function Setup() {
             </div>
             <h1>Create your ChiefClaw</h1>
             <p className="subtitle">
-              Provision a personal AI Chief of Staff for your organization.
+              Provision a personal ChiefClaw 🦞 for your organization.
               It runs in a sandboxed container with its own storage and configuration.
             </p>
             <button className="btn btn-primary setup-btn" onClick={handleCreate}>
@@ -94,7 +94,7 @@ function Setup() {
             </div>
             <h2>ChiefClaw is ready</h2>
             <p className="subtitle">
-              Your AI Chief of Staff has been provisioned and is standing by.
+              Your ChiefClaw 🦞 has been provisioned and is standing by.
             </p>
             <button className="btn btn-primary setup-btn" onClick={handleGoToDashboard}>
               Go to Dashboard

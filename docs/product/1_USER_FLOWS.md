@@ -1,4 +1,4 @@
-# User Flows — AI Chief of Staff
+# User Flows — ChiefClaw 🦞
 
 > Last updated: 2026-02-19
 
@@ -6,7 +6,7 @@
 
 ## 1. Setup Claw (Onboarding)
 
-**Goal:** Get the freelancer from zero to a personalized AI Chief of Staff in under 10 minutes.
+**Goal:** Get the freelancer from zero to a personalized ChiefClaw 🦞 in under 10 minutes.
 
 **Principle:** Progressive disclosure — ask only what's needed now, learn the rest over time.
 

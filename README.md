@@ -1,6 +1,6 @@
 # ChiefClaw 🦞
 
-**Your AI Chief of Staff for Freelancers**
+**Your ChiefClaw 🦞 for Freelancers**
 
 ---
 
@@ -48,15 +48,6 @@ ChiefClaw gives every freelancer an AI agent — **OpenClaw** — that autonomou
 │   Task Router            │
 │   State Manager          │
 │   Workflow Coordinator   │
-└───────────┬──────────────┘
-            │
-            ▼
-┌──────────────────────────┐
-│   Wordware Workflows     │
-│   Email Triage           │
-│   Follow-Up Engine       │
-│   Invoice Manager        │
-│   Schedule Negotiator    │
 └──────────────────────────┘
 ```
 
@@ -65,7 +56,6 @@ ChiefClaw gives every freelancer an AI agent — **OpenClaw** — that autonomou
 | **ChiefClaw Frontend** | React + CopilotKit generative UI — the freelancer's dashboard |
 | **ClawGUI** | OpenClaw channel plugin that exposes the gateway as an AG-UI-compatible HTTP endpoint |
 | **OpenClaw Gateway** | Agent orchestration — multi-step workflow management, task routing, state management |
-| **Wordware Workflows** | Prompt logic and LLM decision trees — email triage, scheduling, invoicing, follow-ups |
 
 ---
 

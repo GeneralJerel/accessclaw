@@ -202,7 +202,7 @@ function Dashboard() {
     // Chat Interface State
     const [chatInput, setChatInput] = useState('');
     const [messages, setMessages] = useState([
-        { id: 1, role: 'system', text: 'Hi! I am your AI Chief of Staff. How can I help you manage your business today?' },
+        { id: 1, role: 'system', text: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
         { id: 2, role: 'system', text: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
     ]);
     const [isTyping, setIsTyping] = useState(false);
@@ -237,7 +237,7 @@ function Dashboard() {
             eventBus.on('scenario:reset', () => {
                 scenarioOnlyEmails.forEach(e => db.collection('inbox').remove(e.id));
                 setMessages([
-                    { id: 1, role: 'system', text: 'Hi! I am your AI Chief of Staff. How can I help you manage your business today?' },
+                    { id: 1, role: 'system', text: 'Hi! I am your ChiefClaw 🦞. How can I help you manage your business today?' },
                     { id: 2, role: 'system', text: 'Here are the things I can help you with right now: Manage Emails, Check Schedule, Client Follow-ups, and Invoices.' }
                 ]);
                 setActiveWorkspace('empty');
@@ -379,7 +379,7 @@ function Dashboard() {
                     <div style={{ color: 'var(--accent)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
                         <Sparkles size={48} />
                     </div>
-                    <h2>Connect your AI Chief of Staff</h2>
+                    <h2>Connect your ChiefClaw 🦞</h2>
                     <p className="subtitle">Enter your OpenClaw credentials to connect your workspace.</p>
 
                     <form onSubmit={handleConnect} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', maxWidth: '300px', margin: '2rem auto 0' }}>
@@ -415,7 +415,7 @@ function Dashboard() {
                     <div className="agent-identity">
                         <div className="agent-avatar"><Sparkles size={18} color="white" /></div>
                         <div>
-                            <div className="agent-name">AI Chief of Staff</div>
+                            <div className="agent-name">ChiefClaw 🦞</div>
                             <div className="agent-status"><span className="status-dot"></span> Online</div>
                         </div>
                     </div>

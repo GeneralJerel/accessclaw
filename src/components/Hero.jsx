@@ -8,7 +8,7 @@ function Hero() {
             <div className="stack animate-fade-in">
                 <p className="kicker">Now available for early access</p>
                 <h1>
-                    AI Chief of Staff for <span style={{ color: 'var(--accent)' }}>Solopreneurs</span>
+                    ChiefClaw 🦞 for <span style={{ color: 'var(--accent)' }}>Solopreneurs</span>
                 </h1>
                 <p className="subtitle">
                     An AI-powered executive assistant that handles the operational chaos of running a freelance business — so you can focus on the work that actually pays.

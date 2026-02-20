@@ -1,4 +1,4 @@
-# AI Engineering Profile — AI Chief of Staff
+# AI Engineering Profile — ChiefClaw 🦞
 
 > Last updated: 2026-02-19
 
@@ -6,7 +6,7 @@
 
 ## Agent Architecture
 
-The AI Chief of Staff operates as a multi-agent system orchestrated by **OpenClaw**, with individual agent workflows defined in **Wordware**. Agent state is streamed to the frontend via the **AG-UI** protocol and rendered through **CopilotKit** components.
+The ChiefClaw 🦞 operates as a multi-agent system orchestrated by **OpenClaw**, with individual agent workflows defined in **Wordware**. Agent state is streamed to the frontend via the **AG-UI** protocol and rendered through **CopilotKit** components.
 
 ---
 

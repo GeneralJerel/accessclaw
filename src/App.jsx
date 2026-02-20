@@ -15,7 +15,7 @@ function App() {
     <Router>
       <div className="container">
         <header className="site-header">
-          <Link to="/" className="logo">AI Chief of Staff</Link>
+          <Link to="/" className="logo">ChiefClaw 🦞</Link>
           <nav className="tabs">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/dashboard">Dashboard</NavLink>

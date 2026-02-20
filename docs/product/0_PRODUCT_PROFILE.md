@@ -1,4 +1,4 @@
-# Product Profile — AI Chief of Staff
+# Product Profile — ChiefClaw 🦞
 
 > Last updated: 2026-02-19
 
