@@ -447,6 +447,7 @@
 .inbox-workspace .email-list {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     flex-shrink: 0;
     transition: flex 0.25s ease;
 }
@@ -458,6 +459,7 @@
 .inbox-workspace .email-detail {
     flex: 2;
     min-width: 0;
+    min-height: 0;
     overflow-y: auto;
 }
 
@@ -531,16 +533,545 @@
 .tag.high {
     background: rgba(245, 158, 11, 0.15);
     color: #b45309;
-    /* Dark orange */
 }
 
-/* Email Detail Override */
+.tag.medium {
+    background: rgba(0, 123, 255, 0.1);
+    color: #0056b3;
+}
+
+.tag.low {
+    background: var(--surface-soft);
+    color: var(--muted);
+}
+
+/* ── Email Detail Panel v2 ── */
 .email-detail {
     padding: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
+/* Detail Header v2 */
+.detail-header-v2 {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.detail-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.detail-subject-v2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+}
+
+.detail-sender-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.detail-sender-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+
+.detail-sender-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.detail-sender-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.detail-sender-email {
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.detail-timestamp {
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.detail-claw-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(0, 123, 255, 0.05);
+    border: 1px solid rgba(0, 123, 255, 0.12);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text);
+}
+
+.detail-claw-summary svg {
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Detail Tab Bar */
+.detail-tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+    background: var(--surface);
+    padding: 0 1.25rem;
+}
+
+.detail-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1rem;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.detail-tab:hover {
+    color: var(--text);
+    background: var(--surface-soft);
+}
+
+.detail-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.detail-tab-count {
+    font-size: 0.68rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--line);
+    color: var(--muted);
+}
+
+.detail-tab.active .detail-tab-count {
+    background: rgba(0, 123, 255, 0.1);
+    color: var(--accent);
+}
+
+.detail-tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+}
+
+/* Message Area (default view) */
+.detail-message-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    min-height: 0;
+}
+
+.message-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+}
+
+.message-body p {
+    margin: 0 0 0.65rem;
+}
+
+.message-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* Thread Area */
+.detail-thread-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+    min-height: 0;
+}
+
+/* Reply Area */
+.detail-reply-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.thread-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.thread-count {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.thread-msg {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+
+.thread-msg.expanded {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.thread-msg.outbound {
+    border-left: 3px solid var(--accent);
+}
+
+.thread-msg.inbound {
+    border-left: 3px solid var(--line);
+}
+
+.thread-msg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.85rem;
+    background: var(--surface);
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    gap: 0.5rem;
+    transition: background 0.15s;
+}
+
+.thread-msg-header:hover {
+    background: var(--surface-soft);
+}
+
+.thread-msg-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.thread-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+}
+
+.thread-avatar.avatar-maya {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+.thread-msg-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.thread-sender-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.thread-claw-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(0, 123, 255, 0.08);
+    padding: 1px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.thread-msg-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+    color: var(--muted);
+}
+
+.thread-direction-icon {
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+}
+
+.thread-time {
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.thread-msg-body {
+    padding: 0.75rem 0.85rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text);
+    border-top: 1px solid var(--line);
+    white-space: pre-wrap;
+}
+
+.thread-msg-body p {
+    margin: 0 0 0.5rem;
+}
+
+.thread-msg-body p:last-child {
+    margin-bottom: 0;
+}
+
+.thread-msg-preview {
+    padding: 0 0.85rem 0.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── AI Copilot Panel v2 ── */
+.ai-copilot-panel-v2 {
+    background: var(--bg);
+}
+
+.copilot-header-v2 {
+    padding: 0.65rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.copilot-title-v2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: var(--success);
+    border-radius: 50%;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--success);
+    background: var(--success-soft);
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+
+.workflow-badge {
+    font-size: 0.72rem;
+    background: var(--surface-soft);
+    color: var(--muted);
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-weight: 500;
+}
+
+/* Tone Selector */
+.tone-selector {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.55rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.tone-pill {
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tone-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tone-pill.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+/* Draft Editor v2 */
+.draft-editor-v2 {
+    padding: 0.75rem 1.25rem;
+}
+
+.draft-textarea {
+    width: 100%;
+    height: 130px;
+    background: transparent;
+    border: none;
+    resize: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    outline: none;
+}
+
+/* Context Bar */
+.copilot-context-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+}
+
+.copilot-context-bar svg {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.context-chip {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+/* Actions v2 */
+.copilot-actions-v2 {
+    padding: 0.65rem 1.25rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+}
+
+.btn-ghost {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    transition: all 0.15s;
+}
+
+.btn-ghost:hover {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Legacy compat for detail-header and detail-subject used by invoice view */
 .detail-header {
     padding: 1.5rem;
     border-bottom: 1px solid var(--line);
@@ -558,77 +1089,140 @@
     color: var(--muted);
 }
 
-.thread-body {
-    padding: 1.5rem;
-    color: var(--text);
-    font-size: 1rem;
-    line-height: 1.6;
+/* ── Todo List ── */
+.todo-view {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 120px);
 }
 
-.ai-copilot-panel {
-    margin: 1.5rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    background: var(--bg);
+.todo-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.todo-header h2 {
+    margin: 0;
+}
+
+.todo-header p {
+    margin: 0.15rem 0 0;
+}
+
+.todo-progress-wrap {
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.todo-progress-bar {
+    height: 6px;
+    background: var(--line);
+    border-radius: 999px;
     overflow: hidden;
 }
 
-.copilot-header {
-    background: var(--surface);
-    padding: 0.75rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
+.todo-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.3s ease;
 }
 
-.copilot-title {
+.todo-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.15s;
+}
+
+.todo-item:hover {
+    background: var(--bg);
+}
+
+.todo-item.done {
+    opacity: 0.55;
+}
+
+.todo-item.done .todo-title {
+    text-decoration: line-through;
+}
+
+.todo-check {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: color 0.15s;
+}
+
+.todo-check:hover {
+    color: var(--accent);
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.todo-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.todo-title-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.todo-title {
     font-weight: 600;
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    background-color: var(--accent);
-    border-radius: 50%;
-}
-
-.workflow-badge {
-    font-size: 0.75rem;
-    background: var(--surface-soft);
-    color: var(--muted);
-    padding: 4px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-}
-
-.draft-editor {
-    padding: 1rem;
-}
-
-.draft-textarea {
-    width: 100%;
-    height: 120px;
-    background: transparent;
-    border: none;
-    resize: none;
-    color: var(--text);
-    font-family: inherit;
     font-size: 0.95rem;
-    line-height: 1.5;
-    outline: none;
+    color: var(--text);
 }
 
-.copilot-actions {
-    padding: 1rem;
-    border-top: 1px solid var(--line);
+.todo-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.45;
+    margin: 0 0 0.4rem;
+}
+
+.todo-meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: var(--surface);
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.todo-project {
+    font-weight: 600;
+    color: var(--text);
+    opacity: 0.7;
+}
+
+.todo-due,
+.todo-source {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 /* Schedule */
@@ -713,17 +1307,55 @@
     background-color: #ef4444;
 }
 
-/* Invoices */
-.invoice-view {
-    padding: 0;
+/* Invoices — sidebar list (mirrors email-list) */
+.invoice-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.invoice-header {
-    padding: 1.5rem;
+.invoice-list-items {
+    overflow-y: auto;
+    margin-top: 1rem;
+    flex: 1;
+    min-height: 0;
+}
+
+.invoice-list-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.invoice-list-item:hover {
+    background: var(--bg);
+}
+
+.invoice-list-item.selected {
+    background: var(--surface-soft);
+    border-left: 3px solid var(--accent);
+}
+
+/* Invoice detail (mirrors email-detail) */
+.invoice-detail {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.invoice-detail-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--line);
+    gap: 1rem;
+}
+
+.invoice-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .invoice-document {

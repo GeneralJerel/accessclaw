@@ -1,30 +1,23 @@
-export { freelancer } from "./freelancer";
-export { clients } from "./clients";
-export { emails } from "./emails";
-export { calendarSlots, calendarInvite, calendarEvents } from "./calendar";
-export { dailyBrief } from "./dailyBrief";
-export { tasks, notionPage } from "./tasks";
-export { openclawTasks, openclawActivityLog } from "./openclawTasks";
-
 /**
- * SCENARIO: "A Day in Maya's Life with OpenClaw"
- *
- * Timeline of events:
- *
- * Feb 19, 2:23 PM — David Park emails Maya about a rebrand project (email_01)
- * Feb 19, 2:28 PM — OpenClaw auto-responds with 3 calendar slots (email_02)
- * Feb 19, 3:10 PM — David confirms Thursday 1 PM (email_03)
- * Feb 19, 3:12 PM — OpenClaw creates Google Calendar invite (cal_inv_01)
- * Feb 19, 3:15 PM — OpenClaw creates ClickUp prep task (task_01)
- * Feb 19, 3:20 PM — OpenClaw creates Notion discovery page (notion_page_01)
- * Feb 20, 8:00 AM — OpenClaw generates daily brief (brief_2026-02-20)
- * Feb 20, 8:30 AM — OpenClaw checks task list — 4 items surfaced
- * Feb 20, 9:00 AM — OpenClaw checks invoices — 1 outstanding, not yet overdue
- *
- * OpenClaw Recurring Tasks:
- *   - Daily brief every morning at 8 AM
- *   - Email check every hour (9 AM – 6 PM)
- *   - Invoice check every morning at 9 AM
- *   - Task list review every morning at 8:30 AM
- *   - Client situating on-demand (triggered by new lead detection)
+ * LEGACY re-exports.
+ * Prefer importing from `mock-data/index.js` (the db) for new code.
+ * These re-exports keep existing consumers working.
  */
+
+export { freelancerProfile as freelancer } from "../seed.js";
+export { clientsSeed as clients } from "../seed.js";
+export { inboxSeed as emails } from "../seed.js";
+export { calendarSeed as calendarEvents } from "../seed.js";
+export { dailyBriefsSeed } from "../seed.js";
+export { tasksSeed as tasks } from "../seed.js";
+export { invoicesSeed as invoices } from "../seed.js";
+
+export { openclawTasks, openclawActivityLog } from "./openclawTasks.js";
+export { notionPage } from "./tasks.js";
+
+// Legacy calendar helpers — kept for Scenario page
+export { calendarSlots, calendarInvite } from "./calendar.js";
+
+// Legacy daily brief as a single object (old format)
+import { dailyBriefsSeed } from "../seed.js";
+export const dailyBrief = dailyBriefsSeed[0];

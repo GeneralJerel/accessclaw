@@ -6,13 +6,15 @@ import {
   Sun, MailCheck, Receipt, ListChecks, UserPlus, Plus, Play
 } from 'lucide-react';
 
-import { freelancer } from '../../mock-data/scenario/freelancer';
-import { clients } from '../../mock-data/scenario/clients';
-import { emails as allEmails } from '../../mock-data/scenario/emails';
-import { calendarSlots, calendarInvite, calendarEvents } from '../../mock-data/scenario/calendar';
-import { dailyBrief } from '../../mock-data/scenario/dailyBrief';
-import { tasks, notionPage } from '../../mock-data/scenario/tasks';
-import { openclawTasks, openclawActivityLog } from '../../mock-data/scenario/openclawTasks';
+import db, { freelancer } from '../../mock-data/index';
+import { calendarSlots, calendarInvite } from '../../mock-data/scenario/calendar';
+import { notionPage } from '../../mock-data/scenario/tasks';
+import { openclawTasks } from '../../mock-data/scenario/openclawTasks';
+
+const clients = db.collection('clients').getAll();
+const allEmails = db.collection('inbox').getAll();
+const dailyBrief = db.collection('dailyBriefs').getAll()[0];
+const tasks = db.collection('tasks').getAll();
 
 const SCENARIO_SEQUENCE = [
   { emailId: 'email_01', delay: 0, logMessage: 'David Park sends an email requesting a call about a rebrand project.' },
@@ -52,7 +54,7 @@ function EmailCard({ email, isNew }) {
           {isOutbound ? <Send size={14} /> : <Mail size={14} />}
           <span>{isOutbound ? 'Sent' : 'Received'}</span>
         </div>
-        <span className="email-card-time">{formatTime(email.receivedAt || email.sentAt)}</span>
+        <span className="email-card-time">{formatTime(email.timestamp || email.receivedAt || email.sentAt)}</span>
       </div>
       <div className="email-card-from">
         {isOutbound ? `To: ${email.to.name}` : `From: ${email.from.name}`}

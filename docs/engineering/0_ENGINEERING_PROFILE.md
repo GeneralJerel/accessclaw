@@ -53,7 +53,7 @@
 
 - **Atomic Design** — UI components structured as atoms → molecules → organisms → templates → pages
 - **File-Based Routing** — TanStack Router with filesystem conventions
-- **Mock-First Development** — `/data` directory for all API responses until backend is built
+- **Mock-First Development** — `/mock-data` directory with Firebase-style NoSQL database for all API responses until backend is built
 - **Agent-Event Driven UI** — Frontend reacts to AG-UI event streams, not polling
 
 ---

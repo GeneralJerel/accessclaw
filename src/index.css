@@ -11,6 +11,7 @@
   --accent-strong: #0069d9;
   --success: #28a745;
   --success-soft: #edf8f2;
+  --warning: #f59e0b;
   --radius-lg: 20px;
   --radius-md: 14px;
   --shadow: 0 18px 44px rgba(28, 45, 75, 0.07);
@@ -32,7 +33,7 @@ body {
   background: radial-gradient(circle at 10% 0%, #eaf1ff 0%, transparent 28%), var(--bg);
   line-height: 1.5;
   min-height: 100vh;
-  padding: 1rem 1rem 2.5rem;
+  padding: 1rem 0.5rem 2.5rem;
 }
 
 .container {
@@ -94,7 +95,7 @@ body {
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow);
-  padding: clamp(1rem, 3vw, 1.6rem);
+  padding: clamp(0.5rem, 1.5vw, 0.8rem);
 }
 
 .kicker {

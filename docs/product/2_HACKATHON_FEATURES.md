@@ -193,12 +193,19 @@ Features to build and demo for the hackathon. Each feature is a self-contained m
 
 ---
 
-## Mock Data Requirements
+## Mock Data Architecture
 
-| Data Type | Examples Needed |
-|-----------|----------------|
-| **Emails** | 8–12 emails across urgency levels (client requests, follow-ups, newsletters) |
-| **Calendar Events** | 4–6 events for today (calls, deep work blocks, deadlines) |
-| **Clients** | 3–5 client profiles with recent activity |
-| **Draft Replies** | 3 AI-drafted email replies in the user's voice |
-| **Daily Brief** | 1 fully written natural-language morning brief |
+Mock data lives in `/mock-data` as a Firebase-style NoSQL in-memory database with 6 collections.
+
+| Collection | Documents | Status |
+|------------|-----------|--------|
+| `inbox` | 8 emails (inbound + outbound, threaded, with AI metadata) | Seeded |
+| `calendar` | 6 events (calls, deep work, routine, prep blocks) | Seeded |
+| `clients` | 4 client profiles with status and last contact | Seeded |
+| `invoices` | 4 invoices (paid, outstanding, pending-proposal) | Seeded |
+| `tasks` | 4 tasks with priorities, due dates, and linked entities | Seeded |
+| `dailyBriefs` | 1 full natural-language morning brief with sections | Seeded |
+
+The db supports `getAll`, `get`, `add`, `update`, `remove`, `query`, and `subscribe`. The `sendEmail()` helper appends new emails to the inbox at runtime (e.g. when the user clicks "Approve & Send").
+
+See `/docs/engineering/3_MOCK_DATABASE.md` for full API reference.
